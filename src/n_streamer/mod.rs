@@ -1,16 +1,22 @@
 mod message;
+mod time;
+use std::time::Duration;
 
 use iced::{
     Element,
     Length::Fill,
-    Task,
+    Subscription, Task,
     widget::{Space, column, container, row, text},
 };
 
 use message::Message;
 
+use crate::n_streamer::time::Time;
+
 #[derive(Default)]
-pub struct NStreamer {}
+pub struct NStreamer {
+    time: Time,
+}
 
 impl NStreamer {
     pub fn new() -> Self {
@@ -19,8 +25,16 @@ impl NStreamer {
     pub fn init() -> (Self, Task<Message>) {
         (Self::new(), Task::none())
     }
-    pub fn update(&mut self, _message: Message) -> Task<Message> {
-        Task::none()
+    pub fn update(&mut self, message: Message) -> Task<Message> {
+        match message {
+            Message::Tick => {
+                self.time.update();
+                Task::none()
+            }
+        }
+    }
+    pub fn subscription(&self) -> Subscription<Message> {
+        iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick)
     }
     pub fn view(&self) -> Element<'_, Message> {
         column![self.view_top(), text("Hello World!"),].into()
@@ -32,7 +46,7 @@ impl NStreamer {
         container(row![
             self.view_menu(),
             Space::with_width(Fill),
-            text("19::32")
+            self.time.view()
         ])
         .padding(6)
         .style(container::bordered_box)
