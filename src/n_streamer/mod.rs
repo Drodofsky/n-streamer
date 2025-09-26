@@ -3,10 +3,11 @@ mod time;
 use std::time::Duration;
 
 use iced::{
+    Alignment::Center,
     Element,
     Length::Fill,
     Subscription, Task,
-    widget::{Space, column, container, row, text},
+    widget::{Space, button, column, container, row, text},
 };
 
 use message::Message;
@@ -40,16 +41,12 @@ impl NStreamer {
         column![self.view_top(), text("Hello World!"),].into()
     }
     fn view_menu(&self) -> Element<'_, Message> {
-        text("menu").into()
+        button("menu").into()
     }
     fn view_top(&self) -> Element<'_, Message> {
-        container(row![
-            self.view_menu(),
-            Space::with_width(Fill),
-            self.time.view()
-        ])
-        .padding(6)
-        .style(container::bordered_box)
-        .into()
+        container(row![self.view_menu(), Space::with_width(Fill), self.time.view()].align_y(Center))
+            .padding(6)
+            .style(container::bordered_box)
+            .into()
     }
 }
