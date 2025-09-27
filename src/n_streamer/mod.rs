@@ -18,7 +18,7 @@ use crate::{
         time::Time,
         ui_utils::{PADDING, SPACING},
     },
-    pop_up,
+    pop_up, text_btn,
 };
 
 #[derive(Default)]
@@ -82,10 +82,10 @@ impl NStreamer {
             container(column![
                 text("Close NStreamer"),
                 row![
-                    button("yes")
+                    text_btn!("yes")
                         .width(Length::FillPortion(1))
                         .on_press(Message::Close(id)),
-                    button("no")
+                    text_btn!("no")
                         .width(FillPortion(1))
                         .on_press(Message::ClosePopUp)
                 ]

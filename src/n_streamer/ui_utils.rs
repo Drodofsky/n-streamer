@@ -16,3 +16,10 @@ macro_rules! pop_up {
         .style(|theme| container::background(theme.palette().background))
     };
 }
+
+#[macro_export]
+macro_rules! text_btn {
+    ($text:expr) => {
+        button(text($text).align_x(Center))
+    };
+}
