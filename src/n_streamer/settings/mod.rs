@@ -1,3 +1,4 @@
+mod exit;
 use std::fmt;
 
 use iced::{Background, Element, Task, widget::pick_list, window};
@@ -42,7 +43,7 @@ impl NStreamer {
     pub(crate) fn apply_settings_menu(&mut self, setting_item: SettingItem) -> Task<Message> {
         match setting_item {
             SettingItem::Exit => window::get_latest().map(|id| match id {
-                Some(id) => Message::CloseRequest(id),
+                Some(id) => Message::ExitRequest(id),
                 None => Message::Tick,
             }),
             SettingItem::Todo => {

@@ -6,21 +6,18 @@ mod ui_utils;
 use iced::{
     Alignment::Center,
     Element,
-    Length::{self, Fill, FillPortion},
+    Length::{self, Fill},
     Subscription, Task,
-    widget::{Space, button, column, container, row, stack, text},
-    window::{self, Id},
+    widget::{Space, column, container, row, stack, text},
+    window,
 };
 
 use message::Message;
 
-use crate::{
-    n_streamer::{
-        settings::Settings,
-        time::Time,
-        ui_utils::{DynView, PADDING, SPACING},
-    },
-    pop_up, text_btn,
+use crate::n_streamer::{
+    settings::Settings,
+    time::Time,
+    ui_utils::{DynView, PADDING},
 };
 
 #[derive(Default)]
@@ -43,11 +40,11 @@ impl NStreamer {
                 self.time.update();
                 Task::none()
             }
-            Message::CloseRequest(id) => {
-                self.user_interaction = Some(Box::new(move |s| s.view_close_hover(id)));
+            Message::ExitRequest(id) => {
+                self.user_interaction = Some(Box::new(move |s| s.view_exit_popup(id)));
                 Task::none()
             }
-            Message::Close(id) => window::close(id),
+            Message::Exit(id) => window::close(id),
             Message::ClosePopUp => {
                 self.user_interaction = None;
                 Task::none()
@@ -57,7 +54,7 @@ impl NStreamer {
     }
     pub fn subscription(&self) -> Subscription<Message> {
         let tick = iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick);
-        let close = window::close_requests().map(Message::CloseRequest);
+        let close = window::close_requests().map(Message::ExitRequest);
         Subscription::batch([tick, close])
     }
     pub fn view(&self) -> Element<'_, Message> {
@@ -85,23 +82,5 @@ impl NStreamer {
     }
     fn view_center(&self) -> Element<'_, Message> {
         container(text("Hello World!")).center(Length::Fill).into()
-    }
-    fn view_close_hover(&self, id: Id) -> Element<'_, Message> {
-        pop_up!(
-            container(column![
-                text("Close NStreamer"),
-                row![
-                    text_btn!("yes")
-                        .width(Length::FillPortion(1))
-                        .on_press(Message::Close(id)),
-                    text_btn!("no")
-                        .width(FillPortion(1))
-                        .on_press(Message::ClosePopUp)
-                ]
-                .spacing(SPACING)
-            ])
-            .padding(PADDING)
-        )
-        .into()
     }
 }

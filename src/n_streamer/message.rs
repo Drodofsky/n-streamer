@@ -4,8 +4,8 @@ use crate::n_streamer::settings::SettingItem;
 #[derive(Debug, Clone)]
 pub enum Message {
     Tick,
-    CloseRequest(Id),
+    ExitRequest(Id),
     ClosePopUp,
-    Close(Id),
+    Exit(Id),
     SettingSelected(SettingItem),
 }
