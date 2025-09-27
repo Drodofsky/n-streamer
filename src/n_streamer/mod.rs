@@ -1,3 +1,4 @@
+mod menu;
 mod message;
 mod time;
 use std::time::Duration;
@@ -15,6 +16,7 @@ use message::Message;
 
 use crate::{
     n_streamer::{
+        menu::Menu,
         time::Time,
         ui_utils::{DynView, PADDING, SPACING},
     },
@@ -23,6 +25,7 @@ use crate::{
 
 #[derive(Default)]
 pub struct NStreamer {
+    menu: Menu,
     time: Time,
     user_interaction: Option<DynView<Self, Message>>,
 }
@@ -49,6 +52,7 @@ impl NStreamer {
                 self.user_interaction = None;
                 Task::none()
             }
+            Message::MenuSelected(m) => self.apply_menu(m),
         }
     }
     pub fn subscription(&self) -> Subscription<Message> {
@@ -65,11 +69,9 @@ impl NStreamer {
         }
         column![self.view_top(), self.view_center()].into()
     }
-    fn view_menu(&self) -> Element<'_, Message> {
-        button("menu").into()
-    }
+
     fn view_top(&self) -> Element<'_, Message> {
-        container(row![self.view_menu(), Space::with_width(Fill), self.time.view()].align_y(Center))
+        container(row![self.menu.view(), Space::with_width(Fill), self.time.view()].align_y(Center))
             .padding(PADDING)
             .style(container::bordered_box)
             .into()
