@@ -1,5 +1,8 @@
+use iced::Element;
+
 pub const PADDING: u16 = 6;
 pub const SPACING: u16 = 6;
+pub type DynView<T, M> = Box<dyn Fn(&T) -> Element<'_, M>>;
 #[macro_export]
 macro_rules! pop_up {
     ($element:expr) => {

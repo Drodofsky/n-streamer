@@ -16,7 +16,7 @@ use message::Message;
 use crate::{
     n_streamer::{
         time::Time,
-        ui_utils::{PADDING, SPACING},
+        ui_utils::{DynView, PADDING, SPACING},
     },
     pop_up, text_btn,
 };
@@ -24,7 +24,7 @@ use crate::{
 #[derive(Default)]
 pub struct NStreamer {
     time: Time,
-    user_interaction: Option<Box<dyn Fn(&Self) -> Element<'_, Message>>>,
+    user_interaction: Option<DynView<Self, Message>>,
 }
 
 impl NStreamer {
@@ -53,14 +53,14 @@ impl NStreamer {
     }
     pub fn subscription(&self) -> Subscription<Message> {
         let tick = iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick);
-        let close = window::close_requests().map(|id| Message::CloseRequest(id));
+        let close = window::close_requests().map(Message::CloseRequest);
         Subscription::batch([tick, close])
     }
     pub fn view(&self) -> Element<'_, Message> {
         if let Some(interaction) = &self.user_interaction {
             let mut col = column![];
             col = col.push(self.view_top());
-            col = col.push(stack([self.view_center(), (interaction(&self))]));
+            col = col.push(stack([self.view_center(), (interaction(self))]));
             return col.into();
         }
         column![self.view_top(), self.view_center()].into()
