@@ -8,6 +8,7 @@ use crate::n_streamer::{NStreamer, message::Message};
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SettingItem {
     Exit,
+    Locations,
     Todo,
 }
 
@@ -16,6 +17,7 @@ impl fmt::Display for SettingItem {
         match self {
             SettingItem::Exit => write!(f, "Exit"),
             SettingItem::Todo => write!(f, "TODO"),
+            SettingItem::Locations => write!(f, "Locations"),
         }
     }
 }
@@ -25,7 +27,7 @@ pub struct Settings;
 
 impl Settings {
     pub fn view(&self) -> Element<'_, Message> {
-        let options = [SettingItem::Exit, SettingItem::Todo];
+        let options = [SettingItem::Locations, SettingItem::Exit, SettingItem::Todo];
         let selected: Option<SettingItem> = None;
         pick_list(options, selected, Message::SettingSelected)
             .placeholder("Settings")
@@ -46,6 +48,9 @@ impl NStreamer {
                 Some(id) => Message::ExitRequest(id),
                 None => Message::Tick,
             }),
+            SettingItem::Locations => {
+                todo!()
+            }
             SettingItem::Todo => {
                 todo!()
             }
