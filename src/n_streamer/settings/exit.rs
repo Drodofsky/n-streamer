@@ -2,7 +2,7 @@ use iced::{
     Alignment::Center,
     Element,
     Length::{self, FillPortion},
-    widget::{Space, button, column, container, row, text},
+    widget::{Space, column, container, row, text},
     window::Id,
 };
 

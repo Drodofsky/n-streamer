@@ -1,7 +1,7 @@
 use iced::Element;
 
-pub const PADDING: u16 = 6;
-pub const SPACING: u32 = 6;
+pub const PADDING: u16 = 5;
+pub const SPACING: u32 = 5;
 pub type DynView<T, M> = Box<dyn Fn(&T) -> Element<'_, M>>;
 #[macro_export]
 macro_rules! pop_up {
@@ -23,6 +23,24 @@ macro_rules! pop_up {
 #[macro_export]
 macro_rules! button_text {
     ($text:expr) => {
-        button(text($text).align_x(Center))
+        iced::widget::button(iced::widget::text($text).align_x(Center))
+    };
+}
+
+#[macro_export]
+macro_rules! primary_text {
+    ($text:expr) => {       
+        widget::container(widget::text($text).style(|theme| Style {
+            color: Some(button::primary(theme, Status::Active).text_color),
+        }))
+        .style(|theme| {
+            let style = transparent(theme).background(
+                widget::button::primary(theme, Status::Active)
+                    .background
+                    .unwrap_or(Background::Color(Color::default())),
+            );
+            style
+        })
+        .padding(PADDING).align_x(iced::Center)
     };
 }
