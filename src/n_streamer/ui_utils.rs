@@ -21,7 +21,7 @@ macro_rules! pop_up {
 }
 
 #[macro_export]
-macro_rules! text_btn {
+macro_rules! button_text {
     ($text:expr) => {
         button(text($text).align_x(Center))
     };

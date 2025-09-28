@@ -7,12 +7,13 @@ use iced::{
 };
 
 use crate::{
+    button_text,
     n_streamer::{
         NStreamer,
         message::Message,
         ui_utils::{PADDING, SPACING},
     },
-    pop_up, text_btn,
+    pop_up,
 };
 
 impl NStreamer {
@@ -21,10 +22,10 @@ impl NStreamer {
             container(column![
                 text("Close NStreamer"),
                 row![
-                    text_btn!("yes")
+                    button_text!("yes")
                         .width(Length::FillPortion(1))
                         .on_press(Message::Exit(id)),
-                    text_btn!("no")
+                    button_text!("no")
                         .width(FillPortion(1))
                         .on_press(Message::ClosePopUp)
                 ]
