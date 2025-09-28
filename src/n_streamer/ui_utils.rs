@@ -7,7 +7,7 @@ pub type DynView<T, M> = Box<dyn Fn(&T) -> Element<'_, M>>;
 macro_rules! pop_up {
     ($element:expr) => {
         container(column![
-            Space::new().width(Length::FillPortion(2)),
+            Space::new().height(Length::FillPortion(2)),
             row![
                 Space::new().width(Length::FillPortion(1)),
                 container($element).style(container::bordered_box),
