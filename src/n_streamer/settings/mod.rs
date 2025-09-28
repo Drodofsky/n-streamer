@@ -59,14 +59,14 @@ fn to_button_status(status: PickListStatus) -> ButtonStatus {
     match status {
         PickListStatus::Active => ButtonStatus::Active,
         PickListStatus::Hovered => ButtonStatus::Hovered,
-        PickListStatus::Opened => ButtonStatus::Pressed,
+        PickListStatus::Opened { .. } => ButtonStatus::Pressed,
     }
 }
 
 impl NStreamer {
     pub(crate) fn apply_settings_menu(&mut self, setting_item: SettingItem) -> Task<Message> {
         match setting_item {
-            SettingItem::Exit => window::get_latest().map(|id| match id {
+            SettingItem::Exit => window::latest().map(|id| match id {
                 Some(id) => Message::ExitRequest(id),
                 None => Message::Tick,
             }),

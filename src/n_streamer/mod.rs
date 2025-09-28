@@ -73,7 +73,7 @@ impl NStreamer {
                 self.settings.view(),
                 button_text!("Program Schedule").on_press(Message::Tick),
                 button_text!("Watch Live").on_press(Message::Tick),
-                Space::with_width(Fill),
+                Space::new().width(Fill),
                 button_text!("Manage Downloads").on_press(Message::Tick),
                 button_text!("Library").on_press(Message::Tick),
                 self.time.view()
