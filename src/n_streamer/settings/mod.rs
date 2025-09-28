@@ -1,7 +1,13 @@
 mod exit;
+use iced::widget::button::Status as ButtonStatus;
+use iced::widget::pick_list::Status as PickListStatus;
+use iced::widget::pick_list::Style as PickListStyle;
+use iced::{
+    Background, Color, Element, Task,
+    widget::{button, pick_list},
+    window,
+};
 use std::fmt;
-
-use iced::{Background, Element, Task, widget::pick_list, window};
 
 use crate::n_streamer::{NStreamer, message::Message};
 
@@ -32,12 +38,28 @@ impl Settings {
         pick_list(options, selected, Message::SettingSelected)
             .placeholder("Settings")
             .style(|theme, status| {
-                let mut p = pick_list::default(theme, status);
-                p.placeholder_color = theme.palette().text;
-                p.background = Background::Color(theme.palette().primary);
-                p
+                to_pick_list_style(button::primary(theme, to_button_status(status)))
             })
             .into()
+    }
+}
+fn to_pick_list_style(button_style: iced::widget::button::Style) -> PickListStyle {
+    PickListStyle {
+        text_color: button_style.text_color,
+        placeholder_color: button_style.text_color,
+        background: button_style
+            .background
+            .unwrap_or(Background::Color(Color::default())),
+        border: button_style.border,
+        handle_color: button_style.text_color,
+    }
+}
+
+fn to_button_status(status: PickListStatus) -> ButtonStatus {
+    match status {
+        PickListStatus::Active => ButtonStatus::Active,
+        PickListStatus::Hovered => ButtonStatus::Hovered,
+        PickListStatus::Opened => ButtonStatus::Pressed,
     }
 }
 
