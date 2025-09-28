@@ -1,8 +1,7 @@
 use iced::{
-    Alignment::Center,
     Element,
     Length::{self, FillPortion},
-    widget::{Space, column, container, row, text},
+    widget::{self, column, container, row, text},
     window::Id,
 };
 

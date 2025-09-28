@@ -6,30 +6,30 @@ pub type DynView<T, M> = Box<dyn Fn(&T) -> Element<'_, M>>;
 #[macro_export]
 macro_rules! pop_up {
     ($element:expr) => {
-        container(column![
-            Space::new().height(Length::FillPortion(2)),
-            row![
-                Space::new().width(Length::FillPortion(1)),
-                container($element).style(container::bordered_box),
-                Space::new().width(Length::FillPortion(1))
+        widget::container(widget::column![
+            widget::Space::new().height(iced::Length::FillPortion(2)),
+            widget::row![
+                widget::Space::new().width(iced::Length::FillPortion(1)),
+                widget::container($element).style(widget::container::bordered_box),
+                widget::Space::new().width(iced::Length::FillPortion(1))
             ],
-            Space::new().height(Length::FillPortion(3))
+            widget::Space::new().height(iced::Length::FillPortion(3))
         ])
-        .center(Length::Fill)
-        .style(|theme| container::background(theme.palette().background))
+        .center(iced::Length::Fill)
+        .style(|theme| widget::container::background(theme.palette().background))
     };
 }
 
 #[macro_export]
 macro_rules! button_text {
     ($text:expr) => {
-        iced::widget::button(iced::widget::text($text).align_x(Center))
+        iced::widget::button(iced::widget::text($text).align_x(iced::Alignment::Center))
     };
 }
 
 #[macro_export]
 macro_rules! primary_text {
-    ($text:expr) => {       
+    ($text:expr) => {
         widget::container(widget::text($text).style(|theme| Style {
             color: Some(button::primary(theme, Status::Active).text_color),
         }))
@@ -41,6 +41,7 @@ macro_rules! primary_text {
             );
             style
         })
-        .padding(PADDING).align_x(iced::Center)
+        .padding(PADDING)
+        .align_x(iced::Center)
     };
 }
