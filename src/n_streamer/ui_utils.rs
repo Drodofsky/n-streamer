@@ -23,24 +23,24 @@ macro_rules! pop_up {
 #[macro_export]
 macro_rules! button_text {
     ($text:expr) => {
-        button(text($text).align_x(Center))
+        iced::widget::button(iced::widget::text($text).align_x(Center))
     };
 }
 
 #[macro_export]
 macro_rules! primary_text {
-    ($text:expr) => {
+    ($text:expr) => {       
         widget::container(widget::text($text).style(|theme| Style {
             color: Some(button::primary(theme, Status::Active).text_color),
         }))
         .style(|theme| {
             let style = transparent(theme).background(
-                button::primary(theme, Status::Active)
+                widget::button::primary(theme, Status::Active)
                     .background
                     .unwrap_or(Background::Color(Color::default())),
             );
             style
         })
-        .padding(PADDING)
+        .padding(PADDING).align_x(iced::Center)
     };
 }

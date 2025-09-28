@@ -3,15 +3,25 @@ mod settings;
 mod time;
 use std::time::Duration;
 mod ui_utils;
-use crate::{button_text, n_streamer::ui_utils::SPACING};
+use crate::{button_text,primary_text, n_streamer::ui_utils::SPACING};
 use iced::{
     Alignment::Center,
     Element,
     Length::{self, Fill},
     Subscription, Task,
-    widget::{Space, button, column, container, row, stack, text},
+    widget::{column, container, row, stack, text},
     window,
 };
+use iced::{
+    Background, Color,
+    widget::{
+        self,
+        button::{self, Status},
+        container::transparent,
+        text::Style,
+    },
+};
+
 use message::Message;
 
 use crate::n_streamer::{
@@ -73,7 +83,7 @@ impl NStreamer {
                 self.settings.view(),
                 button_text!("Program Schedule").on_press(Message::Tick),
                 button_text!("Watch Live").on_press(Message::Tick),
-                Space::with_width(Fill),
+                primary_text!("City-Scope").width(Fill),
                 button_text!("Manage Downloads").on_press(Message::Tick),
                 button_text!("Library").on_press(Message::Tick),
                 self.time.view()
