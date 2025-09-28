@@ -1,12 +1,17 @@
+mod live_stream;
 mod message;
 mod settings;
 mod time;
 use std::time::Duration;
+mod error;
 mod ui_utils;
-use crate::{button_text,primary_text, n_streamer::ui_utils::SPACING};
+use crate::{
+    button_text,
+    n_streamer::{live_stream::LiveStream, ui_utils::SPACING},
+    primary_text,
+};
 use iced::{
-    Alignment::Center,
-    Element,
+    Alignment, Element,
     Length::{self, Fill},
     Subscription, Task,
     widget::{column, container, row, stack, text},
@@ -35,6 +40,8 @@ pub struct NStreamer {
     settings: Settings,
     time: Time,
     user_interaction: Option<DynView<Self, Message>>,
+    life_stream: LiveStream,
+    center: Center,
 }
 
 impl NStreamer {
@@ -60,6 +67,14 @@ impl NStreamer {
                 Task::none()
             }
             Message::SettingSelected(m) => self.apply_settings_menu(m),
+            Message::NewLiveStream(live_stream) => {
+                self.life_stream.new_live_stream(live_stream);
+                Task::none()
+            }
+            Message::WatchLive => {
+                self.center = Center::LiveStream;
+                self.life_stream.live_stream_button_pressed()
+            }
         }
     }
     pub fn subscription(&self) -> Subscription<Message> {
@@ -82,20 +97,33 @@ impl NStreamer {
             row![
                 self.settings.view(),
                 button_text!("Program Schedule").on_press(Message::Tick),
-                button_text!("Watch Live").on_press(Message::Tick),
+                button_text!("Watch Live").on_press(Message::WatchLive),
                 primary_text!("City-Scope").width(Fill),
                 button_text!("Manage Downloads").on_press(Message::Tick),
                 button_text!("Library").on_press(Message::Tick),
                 self.time.view()
             ]
             .spacing(SPACING)
-            .align_y(Center),
+            .align_y(Alignment::Center),
         )
         .padding(PADDING)
         .style(container::bordered_box)
         .into()
     }
     fn view_center(&self) -> Element<'_, Message> {
-        container(text("Hello World!")).center(Length::Fill).into()
+        let center = match self.center {
+            Center::LiveStream => self.life_stream.view(),
+            _ => text("Hello World!").into(),
+        };
+        container(center).center(Length::Fill).into()
     }
+}
+
+#[derive(Debug, Default)]
+enum Center {
+    #[default]
+    ProgramSchedule,
+    LiveStream,
+    Downloads,
+    Library,
 }

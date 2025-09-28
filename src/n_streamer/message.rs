@@ -1,6 +1,9 @@
-use iced::window::Id;
+use std::sync::Arc;
 
-use crate::n_streamer::settings::SettingItem;
+use iced::window::Id;
+use iced_video_player::Video;
+
+use crate::n_streamer::{error::Error, settings::SettingItem};
 #[derive(Debug, Clone)]
 pub enum Message {
     Tick,
@@ -8,4 +11,6 @@ pub enum Message {
     ClosePopUp,
     Exit(Id),
     SettingSelected(SettingItem),
+    NewLiveStream(Result<Arc<Video>, Error>),
+    WatchLive,
 }

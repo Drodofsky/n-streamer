@@ -7,3 +7,6 @@ edition = "2024"
 iced = {version = "0.13.1", features = ["tokio"]}
 chrono = {version = "^0.4",features = ["serde"]}
 tokio = {version = "^1.40",features = ["process","fs"]}
+iced_video_player = {git="https://github.com/Drodofsky/iced_video_player.git"}
+reqwest = "0.12.23"
+url = "^2.5"
