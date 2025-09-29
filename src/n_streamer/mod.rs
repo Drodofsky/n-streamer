@@ -71,9 +71,13 @@ impl NStreamer {
                 self.life_stream.new_live_stream(live_stream);
                 Task::none()
             }
-            Message::WatchLive => {
+            Message::MenuButtonPressed(Center::LiveStream) => {
                 self.center = Center::LiveStream;
                 self.life_stream.live_stream_button_pressed()
+            }
+            Message::MenuButtonPressed(c) => {
+                self.center = c;
+                Task::none()
             }
         }
     }
@@ -96,11 +100,13 @@ impl NStreamer {
         container(
             row![
                 self.settings.view(),
-                button_text!("Program Schedule").on_press(Message::Tick),
-                button_text!("Watch Live").on_press(Message::WatchLive),
+                button_text!("Program Schedule")
+                    .on_press(Message::MenuButtonPressed(Center::ProgramSchedule)),
+                button_text!("Watch Live").on_press(Message::MenuButtonPressed(Center::LiveStream)),
                 primary_text!("City-Scope").width(Fill),
-                button_text!("Manage Downloads").on_press(Message::Tick),
-                button_text!("Library").on_press(Message::Tick),
+                button_text!("Manage Downloads")
+                    .on_press(Message::MenuButtonPressed(Center::Downloads)),
+                button_text!("Library").on_press(Message::MenuButtonPressed(Center::Library)),
                 self.time.view()
             ]
             .spacing(SPACING)
@@ -119,8 +125,8 @@ impl NStreamer {
     }
 }
 
-#[derive(Debug, Default)]
-enum Center {
+#[derive(Debug, Default, Clone, Copy)]
+pub enum Center {
     #[default]
     ProgramSchedule,
     LiveStream,

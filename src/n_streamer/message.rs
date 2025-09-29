@@ -3,7 +3,7 @@ use std::sync::Arc;
 use iced::window::Id;
 use iced_video_player::Video;
 
-use crate::n_streamer::{error::Error, settings::SettingItem};
+use crate::n_streamer::{Center, error::Error, settings::SettingItem};
 #[derive(Debug, Clone)]
 pub enum Message {
     Tick,
@@ -12,5 +12,5 @@ pub enum Message {
     Exit(Id),
     SettingSelected(SettingItem),
     NewLiveStream(Result<Arc<Video>, Error>),
-    WatchLive,
+    MenuButtonPressed(Center),
 }
