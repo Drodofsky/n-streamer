@@ -35,12 +35,15 @@ impl LiveStream {
             Err(e) => panic!("{}", e.to_string()),
         }
     }
-    pub fn live_stream_button_pressed(&mut self) -> Task<Message> {
+    pub fn live_stream_button_pressed(&mut self, uri: &str) -> Task<Message> {
         if self.video.is_none() {
             if !self.is_loading {
                 self.is_loading = true;
 
-                Self::get_live_stream_task()
+                Task::perform(
+                    Self::init_live_stream(uri.to_string()),
+                    Message::NewLiveStream,
+                )
             } else {
                 Task::none()
             }
@@ -49,12 +52,7 @@ impl LiveStream {
         }
     }
 
-    async fn init_live_stream() -> Result<Arc<Video>, Error> {
-        let uri = include_str!("../../stream_url.txt");
-        Ok(Arc::new(Video::new(&Url::parse(uri)?)?))
-    }
-
-    fn get_live_stream_task() -> Task<Message> {
-        Task::perform(Self::init_live_stream(), Message::NewLiveStream)
+    async fn init_live_stream(uri: String) -> Result<Arc<Video>, Error> {
+        Ok(Arc::new(Video::new(&Url::parse(&uri)?)?))
     }
 }

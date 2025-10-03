@@ -10,6 +10,8 @@ chrono-tz = "^0.10"
 tokio = {version = "^1.40",features = ["process","fs"]}
 iced_video_player = {git="https://github.com/Drodofsky/iced_video_player.git",branch = "0.14-dev"}
 url = "^2.5"
+directories = "6.0.0"
+toml = "0.9.7"
 
 [dependencies.serde]
 version = "1.0"

@@ -3,12 +3,17 @@ mod message;
 mod settings;
 mod time;
 use std::time::Duration;
+mod config;
 mod error;
 mod program_schedule;
 mod ui_utils;
+mod utils;
 use crate::{
     button_text,
-    n_streamer::{live_stream::LiveStream, program_schedule::ProgramSchedule, ui_utils::SPACING},
+    n_streamer::{
+        config::Config, live_stream::LiveStream, program_schedule::ProgramSchedule,
+        ui_utils::SPACING,
+    },
     primary_text,
 };
 use iced::{
@@ -35,6 +40,7 @@ pub struct NStreamer {
     life_stream: LiveStream,
     center: Center,
     program_schedule: ProgramSchedule,
+    config: Config,
 }
 
 impl NStreamer {
@@ -43,7 +49,9 @@ impl NStreamer {
     }
     pub fn init() -> (Self, Task<Message>) {
         let mut n_streamer = Self::new();
-        let task = n_streamer.program_schedule.update_schedule();
+        let schedule = n_streamer.program_schedule.update_schedule();
+        let config = Task::perform(Config::load(), Message::ConfigLoaded);
+        let task = Task::batch([config, schedule]);
         (Self::new(), task)
     }
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -68,8 +76,16 @@ impl NStreamer {
                 Task::none()
             }
             Message::MenuButtonPressed(Center::LiveStream) => {
-                self.center = Center::LiveStream;
-                self.life_stream.live_stream_button_pressed()
+                if let Some(url) = self.config.stream_url() {
+                    self.center = Center::LiveStream;
+
+                    self.life_stream.live_stream_button_pressed(url)
+                } else {
+                    self.user_interaction = Some(Box::new(|s| {
+                        s.view_error_popup("Please configure a streaming url in settings.")
+                    }));
+                    Task::none()
+                }
             }
             Message::MenuButtonPressed(c) => {
                 self.center = c;
@@ -81,6 +97,10 @@ impl NStreamer {
             }
             Message::ScheduleProgramSelected(program) => {
                 self.program_schedule.select_episode(program);
+                Task::none()
+            }
+            Message::ConfigLoaded(config) => {
+                self.config = config.unwrap();
                 Task::none()
             }
         }
