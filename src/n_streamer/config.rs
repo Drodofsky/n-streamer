@@ -1,7 +1,11 @@
+use iced::Task;
 use serde::{Deserialize, Serialize};
-use tokio::{fs::File, io::AsyncReadExt};
+use tokio::{
+    fs::File,
+    io::{AsyncReadExt, AsyncWriteExt},
+};
 
-use crate::n_streamer::{error::Error, utils::get_project_dir};
+use crate::n_streamer::{error::Error, message::Message, utils::get_project_dir};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum Theme {
     Light,
@@ -36,13 +40,21 @@ impl Config {
         let config: Config = toml::from_str(&config_str)?;
         Ok(config)
     }
+    pub async fn save(self) -> Result<(), Error> {
+        let project_dir = get_project_dir()?;
+        let mut file = File::create(project_dir.preference_dir().join("config.toml")).await?;
+        let config_str = toml::to_string_pretty(&self)?;
+        file.write_all(config_str.as_bytes()).await?;
+        Ok(())
+    }
     pub fn stream_url(&self) -> Option<&str> {
         self.stream_url.as_deref()
     }
     pub fn theme(&self) -> Theme {
         self.theme.unwrap_or(Theme::System)
     }
-    pub fn set_theme(&mut self, theme: Theme) {
-        self.theme = Some(theme)
+    pub fn set_theme(&mut self, theme: Theme) -> Task<Message> {
+        self.theme = Some(theme);
+        Task::perform(Self::save(self.clone()), Message::Save)
     }
 }

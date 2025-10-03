@@ -23,4 +23,6 @@ pub enum Message {
     NewSchedule(Result<Schedule, Error>),
     ConfigLoaded(Result<Config, Error>),
     UpdateTheme(Theme),
+    ApplyTheme(iced::Theme),
+    Save(Result<(), Error>),
 }

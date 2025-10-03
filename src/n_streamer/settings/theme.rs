@@ -43,16 +43,16 @@ impl NStreamer {
                 self.theme = iced::Theme::Light;
                 Task::none()
             }
-            Theme::System => {
-                iced::system::theme().map(|t| {
-                    let theme = match t {
-                        Mode::Dark => Theme::Dark,
-                        Mode::Light => Theme::Light,
-                        Mode::None => Theme::Dark, // Defaulting to Dark theme
-                    };
-                    Message::UpdateTheme(theme)
-                })
-            }
+            Theme::System => iced::system::theme().map(|t| {
+                let theme = match t {
+                    Mode::Dark => iced::Theme::Dark,
+                    Mode::Light => iced::Theme::Light,
+                    Mode::None => {
+                        return Message::Tick;
+                    }
+                };
+                Message::ApplyTheme(theme)
+            }),
         }
     }
 }

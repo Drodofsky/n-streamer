@@ -44,6 +44,12 @@ impl From<toml::de::Error> for Error {
     }
 }
 
+impl From<toml::ser::Error> for Error {
+    fn from(value: toml::ser::Error) -> Self {
+        Self::ConfigParsing(value.to_string())
+    }
+}
+
 impl From<iced_video_player::Error> for Error {
     fn from(value: iced_video_player::Error) -> Self {
         Self::VideoPlayer(value.to_string())
@@ -87,7 +93,7 @@ impl fmt::Display for Error {
 }
 
 impl NStreamer {
-    pub(crate) fn view_error_popup(&self, message: &str) -> Element<'_, Message> {
+    pub(crate) fn view_error_popup(&self, message: String) -> Element<'_, Message> {
         pop_up!(
             message.to_string(),
             container(

@@ -66,9 +66,8 @@ impl NStreamer {
         let mut n_streamer = Self::new();
         let schedule = n_streamer.program_schedule.update_schedule();
         let config = Task::perform(Config::load(), Message::ConfigLoaded);
-        let theme = n_streamer.update_theme();
 
-        let task = Task::batch([config.chain(theme), schedule]);
+        let task = Task::batch([config, schedule]);
         (n_streamer, task)
     }
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -99,7 +98,9 @@ impl NStreamer {
                     self.life_stream.live_stream_button_pressed(url)
                 } else {
                     self.user_interaction = Some(Box::new(|s| {
-                        s.view_error_popup("Please configure a streaming url in settings.")
+                        s.view_error_popup(
+                            "Please configure a streaming url in settings.".to_string(),
+                        )
                     }));
                     Task::none()
                 }
@@ -118,13 +119,26 @@ impl NStreamer {
             }
             Message::ConfigLoaded(config) => {
                 self.config = config.unwrap();
-                Task::none()
-            }
-            Message::UpdateTheme(theme) => {
-                self.config.set_theme(theme);
-
                 self.update_theme()
             }
+            Message::UpdateTheme(theme) => {
+                let t1 = self.config.set_theme(theme);
+
+                let t2 = self.update_theme();
+                Task::batch([t1, t2])
+            }
+            Message::ApplyTheme(theme) => {
+                self.theme = theme;
+                Task::none()
+            }
+            Message::Save(result) => match result {
+                Ok(()) => Task::none(),
+                Err(e) => {
+                    self.user_interaction =
+                        Some(Box::new(move |s| s.view_error_popup(e.clone().to_string())));
+                    Task::none()
+                }
+            },
         }
     }
     pub fn subscription(&self) -> Subscription<Message> {
