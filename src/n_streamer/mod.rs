@@ -18,14 +18,6 @@ use iced::{
     widget::{column, container, row, stack, text},
     window,
 };
-use iced::{
-    Background, Color,
-    widget::{
-        self,
-        button::{self, Status},
-        text::Style,
-    },
-};
 
 use message::Message;
 

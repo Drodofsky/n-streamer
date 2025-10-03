@@ -1,12 +1,5 @@
 use chrono::{DateTime, Local};
-use iced::{
-    Background, Color, Element,
-    widget::{
-        self,
-        button::{self, Status},
-        text::Style,
-    },
-};
+use iced::Element;
 
 use crate::{n_streamer::message::Message, primary_text};
 

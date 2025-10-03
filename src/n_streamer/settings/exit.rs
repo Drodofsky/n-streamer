@@ -1,7 +1,7 @@
 use iced::{
     Element,
     Length::{self, FillPortion},
-    widget::{self, column, container, row, text},
+    widget::{column, container, row, text},
     window::Id,
 };
 
