@@ -18,7 +18,7 @@ use crate::{
 impl NStreamer {
     pub(crate) fn view_exit_popup(&self, id: Id) -> Element<'_, Message> {
         pop_up!(
-            "Close NStreamer",
+            "Close N-Streamer",
             row![
                 button_text!("yes")
                     .width(Length::FillPortion(1))
