@@ -105,4 +105,12 @@ impl NStreamer {
         )
         .into()
     }
+    pub(crate) fn apply_result<T>(&mut self, res: Result<T, Error>, f: impl Fn(&mut Self, T)) {
+        match res {
+            Ok(x) => f(self, x),
+            Err(e) => {
+                self.user_interaction = Some(Box::new(move |s| s.view_error_popup(e.to_string())));
+            }
+        }
+    }
 }

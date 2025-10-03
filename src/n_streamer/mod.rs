@@ -118,7 +118,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::ConfigLoaded(config) => {
-                self.config = config.unwrap();
+                self.apply_result(config, Self::set_config);
                 self.update_theme()
             }
             Message::UpdateTheme(theme) => {
@@ -131,14 +131,10 @@ impl NStreamer {
                 self.theme = theme;
                 Task::none()
             }
-            Message::Save(result) => match result {
-                Ok(()) => Task::none(),
-                Err(e) => {
-                    self.user_interaction =
-                        Some(Box::new(move |s| s.view_error_popup(e.clone().to_string())));
-                    Task::none()
-                }
-            },
+            Message::Save(result) => {
+                self.apply_result(result, |_, _| {});
+                Task::none()
+            }
         }
     }
     pub fn subscription(&self) -> Subscription<Message> {
@@ -195,6 +191,9 @@ impl NStreamer {
 
     pub fn theme(&self) -> iced::Theme {
         self.theme.clone()
+    }
+    fn set_config(&mut self, config: Config) {
+        self.config = config;
     }
 }
 
