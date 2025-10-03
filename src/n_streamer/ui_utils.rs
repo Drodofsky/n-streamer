@@ -2,6 +2,7 @@ use chrono::TimeDelta;
 use iced::Element;
 
 pub const PADDING: u16 = 5;
+pub const BIG_PADDING: u16 = 10;
 pub const SPACING: u32 = 5;
 pub type DynView<T, M> = Box<dyn Fn(&T) -> Element<'_, M>>;
 #[macro_export]
@@ -35,14 +36,14 @@ macro_rules! primary_text {
             color: Some(button::primary(theme, Status::Active).text_color),
         }))
         .style(|theme| {
-            let style = transparent(theme).background(
+            let style = iced::widget::container::rounded_box(theme).background(
                 widget::button::primary(theme, Status::Active)
                     .background
                     .unwrap_or(Background::Color(Color::default())),
             );
             style
         })
-        .padding(PADDING)
+        .padding(crate::n_streamer::ui_utils::BIG_PADDING)
         .align_x(iced::Center)
     };
 }
