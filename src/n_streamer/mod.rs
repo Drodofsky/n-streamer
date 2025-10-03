@@ -74,7 +74,8 @@ impl NStreamer {
         match message {
             Message::Tick => {
                 self.time.update();
-                self.program_schedule.update_current_episode();
+                let res = self.program_schedule.update_current_episode();
+                self.apply_result(res);
                 Task::none()
             }
             Message::ExitRequest(id) => {
@@ -88,7 +89,8 @@ impl NStreamer {
             }
             Message::SettingSelected(m) => self.apply_settings_menu(m),
             Message::NewLiveStream(live_stream) => {
-                self.life_stream.new_live_stream(live_stream);
+                let res = self.life_stream.new_live_stream(live_stream);
+                self.apply_result(res);
                 Task::none()
             }
             Message::MenuButtonPressed(Center::LiveStream) => {
@@ -110,7 +112,8 @@ impl NStreamer {
                 Task::none()
             }
             Message::NewSchedule(schedule) => {
-                self.program_schedule.new_schedule(schedule);
+                let res = self.program_schedule.new_schedule(schedule);
+                self.apply_result(res);
                 Task::none()
             }
             Message::ScheduleProgramSelected(program) => {
@@ -118,7 +121,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::ConfigLoaded(config) => {
-                self.apply_result(config, Self::set_config);
+                self.apply_result_and(config, Self::set_config);
                 self.update_theme()
             }
             Message::UpdateTheme(theme) => {
@@ -132,7 +135,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::Save(result) => {
-                self.apply_result(result, |_, _| {});
+                self.apply_result(result);
                 Task::none()
             }
         }

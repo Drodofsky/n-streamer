@@ -81,26 +81,36 @@ impl ProgramSchedule {
         col.into()
     }
 
-    pub fn update_current_episode(&mut self) {
+    pub fn update_current_episode(&mut self) -> Result<(), Error> {
         if let Some(ce) = &self.current_episode {
             let now = Local::now();
-            if now < ce.schedule.checked_add_signed(ce.period).unwrap() {
-                return;
+            if now
+                < ce.schedule
+                    .checked_add_signed(ce.period)
+                    .ok_or(Error::Chrono("failed to calculate time offset".to_string()))?
+            {
+                return Ok(());
             }
         }
-        self.set_current_episode();
+        self.set_current_episode()
     }
-    fn set_current_episode(&mut self) {
+    fn set_current_episode(&mut self) -> Result<(), Error> {
         let now = Local::now();
         if let Some(schedule) = &self.schedule {
             self.current_episode = schedule
                 .episodes
                 .iter()
                 .find(|e| {
-                    e.schedule <= now && e.schedule.checked_add_signed(e.period).unwrap() >= now
+                    let end = if let Some(end) = e.schedule.checked_add_signed(e.period) {
+                        end
+                    } else {
+                        return false;
+                    };
+                    e.schedule <= now && end >= now
                 })
                 .cloned();
         }
+        Ok(())
     }
 
     pub fn update_schedule(&mut self) -> Task<Message> {
@@ -116,14 +126,10 @@ impl ProgramSchedule {
     fn get_schedule_task() -> Task<Message> {
         Task::perform(Self::get_schedule(), Message::NewSchedule)
     }
-    pub fn new_schedule(&mut self, schedule: Result<Schedule, Error>) {
+    pub fn new_schedule(&mut self, schedule: Result<Schedule, Error>) -> Result<(), Error> {
         self.is_loading = false;
-        match schedule {
-            Ok(schedule) => {
-                self.set_new_schedule(schedule).unwrap();
-            }
-            Err(e) => panic!("Failed to load Program Schedule: {}", e),
-        }
+        self.set_new_schedule(schedule?)?;
+        Ok(())
     }
 
     pub fn select_episode(&mut self, episode: AnalyzedEpisode) {

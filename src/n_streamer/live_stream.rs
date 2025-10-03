@@ -26,14 +26,10 @@ impl LiveStream {
         }
     }
 
-    pub fn new_live_stream(&mut self, video: Result<Arc<Video>, Error>) {
+    pub fn new_live_stream(&mut self, video: Result<Arc<Video>, Error>) -> Result<(), Error> {
         self.is_loading = false;
-        match video {
-            Ok(video) => {
-                self.video = Some(video);
-            }
-            Err(e) => panic!("{}", e.to_string()),
-        }
+        self.video = Some(video?);
+        Ok(())
     }
     pub fn live_stream_button_pressed(&mut self, uri: &str) -> Task<Message> {
         if self.video.is_none() {

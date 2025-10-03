@@ -53,7 +53,11 @@ impl TryFrom<Schedule> for AnalyzedSchedule {
             let period_src = NaiveTime::parse_from_str(&episode.period, "%H:%M:%S")?;
             let period = TimeDelta::new(period_src.num_seconds_from_midnight() as i64, 0)
                 .ok_or(Error::Chrono("failed to create duration".to_string()))?;
-            if schedule.checked_add_signed(period).unwrap() >= Local::now() {
+            if schedule
+                .checked_add_signed(period)
+                .ok_or(Error::Chrono("Failed to calculate schedule".to_string()))?
+                >= Local::now()
+            {
                 res_eps.push(AnalyzedEpisode {
                     program_id,
                     program_title,
