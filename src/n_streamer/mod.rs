@@ -23,7 +23,6 @@ use iced::{
     widget::{
         self,
         button::{self, Status},
-        container::transparent,
         text::Style,
     },
 };

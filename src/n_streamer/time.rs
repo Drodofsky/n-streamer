@@ -4,15 +4,11 @@ use iced::{
     widget::{
         self,
         button::{self, Status},
-        container::transparent,
         text::Style,
     },
 };
 
-use crate::{
-    n_streamer::{message::Message, ui_utils::PADDING},
-    primary_text,
-};
+use crate::{n_streamer::message::Message, primary_text};
 
 #[derive(Debug, Default)]
 pub struct Time {
