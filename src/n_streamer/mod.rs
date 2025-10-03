@@ -125,6 +125,7 @@ impl NStreamer {
                 self.update_theme()
             }
             Message::UpdateTheme(theme) => {
+                self.user_interaction = None;
                 let t1 = self.config.set_theme(theme);
 
                 let t2 = self.update_theme();
