@@ -6,12 +6,20 @@ pub const SPACING: u32 = 5;
 pub type DynView<T, M> = Box<dyn Fn(&T) -> iced::Element<'_, M>>;
 #[macro_export]
 macro_rules! pop_up {
-    ($element:expr) => {
+    ($message:expr , $action:expr) => {
         iced::widget::container(iced::widget::column![
             iced::widget::Space::new().height(iced::Length::FillPortion(2)),
             iced::widget::row![
                 iced::widget::Space::new().width(iced::Length::FillPortion(1)),
-                iced::widget::container($element).style(iced::widget::container::bordered_box),
+                iced::widget::container(iced::widget::column![
+                    iced::widget::container(iced::widget::text($message))
+                        .padding($crate::n_streamer::ui_utils::PADDING),
+                    iced::widget::container(iced::widget::rule::horizontal(2))
+                        .padding($crate::n_streamer::ui_utils::PADDING),
+                    $action
+                ])
+                .style(iced::widget::container::bordered_box)
+                .padding($crate::n_streamer::ui_utils::PADDING),
                 iced::widget::Space::new().width(iced::Length::FillPortion(1))
             ],
             iced::widget::Space::new().height(iced::Length::FillPortion(3))

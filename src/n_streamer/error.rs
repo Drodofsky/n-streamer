@@ -1,14 +1,10 @@
 use std::fmt;
 
-use iced::{
-    Element,
-    Length::FillPortion,
-    widget::{column, container, text},
-};
+use iced::{Element, Length::FillPortion, widget::container};
 
 use crate::{
     button_text,
-    n_streamer::{NStreamer, message::Message, ui_utils::BIG_PADDING},
+    n_streamer::{NStreamer, message::Message, ui_utils::PADDING},
     pop_up,
 };
 
@@ -93,13 +89,13 @@ impl fmt::Display for Error {
 impl NStreamer {
     pub(crate) fn view_error_popup(&self, message: &str) -> Element<'_, Message> {
         pop_up!(
-            container(column![
-                text!("{}", message),
+            message.to_string(),
+            container(
                 button_text!("ok")
                     .width(FillPortion(1))
                     .on_press(Message::ClosePopUp)
-            ])
-            .padding(BIG_PADDING)
+            )
+            .padding(PADDING)
         )
         .into()
     }
