@@ -6,7 +6,15 @@ edition = "2024"
 [dependencies]
 iced = {git="https://github.com/iced-rs/iced.git", features = ["tokio"]}
 chrono = {version = "^0.4",features = ["serde"]}
+chrono-tz = "^0.10"
 tokio = {version = "^1.40",features = ["process","fs"]}
 iced_video_player = {git="https://github.com/Drodofsky/iced_video_player.git",branch = "0.14-dev"}
-reqwest = "0.12.23"
 url = "^2.5"
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
+
+[dependencies.reqwest]
+version = "0.12"
+features = ["json"]

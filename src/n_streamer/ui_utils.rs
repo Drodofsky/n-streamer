@@ -1,3 +1,4 @@
+use chrono::TimeDelta;
 use iced::Element;
 
 pub const PADDING: u16 = 5;
@@ -44,4 +45,14 @@ macro_rules! primary_text {
         .padding(PADDING)
         .align_x(iced::Center)
     };
+}
+
+pub fn fmt_period(period: &TimeDelta) -> String {
+    let seconds = period.num_seconds();
+    format!(
+        "{:02}:{:02}:{:02}",
+        seconds / 3600,
+        (seconds % 3600) / 60,
+        seconds % 60
+    )
 }

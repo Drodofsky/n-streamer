@@ -3,7 +3,12 @@ use std::sync::Arc;
 use iced::window::Id;
 use iced_video_player::Video;
 
-use crate::n_streamer::{Center, error::Error, settings::SettingItem};
+use crate::n_streamer::{
+    Center,
+    error::Error,
+    program_schedule::{analyzed_schedule::AnalyzedEpisode, parsed_schedule::Schedule},
+    settings::SettingItem,
+};
 #[derive(Debug, Clone)]
 pub enum Message {
     Tick,
@@ -13,4 +18,6 @@ pub enum Message {
     SettingSelected(SettingItem),
     NewLiveStream(Result<Arc<Video>, Error>),
     MenuButtonPressed(Center),
+    ScheduleProgramSelected(AnalyzedEpisode),
+    NewSchedule(Result<Schedule, Error>),
 }
