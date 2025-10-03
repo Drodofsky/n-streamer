@@ -32,15 +32,30 @@ use crate::n_streamer::{
     ui_utils::{DynView, PADDING},
 };
 
-#[derive(Default)]
 pub struct NStreamer {
     settings: Settings,
     time: Time,
+    theme: iced::Theme,
     user_interaction: Option<DynView<Self, Message>>,
     life_stream: LiveStream,
     center: Center,
     program_schedule: ProgramSchedule,
     config: Config,
+}
+
+impl Default for NStreamer {
+    fn default() -> Self {
+        Self {
+            theme: iced::Theme::Dark,
+            settings: Settings::default(),
+            time: Time::default(),
+            user_interaction: None,
+            life_stream: LiveStream::default(),
+            center: Center::default(),
+            program_schedule: ProgramSchedule::default(),
+            config: Config::default(),
+        }
+    }
 }
 
 impl NStreamer {
@@ -51,8 +66,10 @@ impl NStreamer {
         let mut n_streamer = Self::new();
         let schedule = n_streamer.program_schedule.update_schedule();
         let config = Task::perform(Config::load(), Message::ConfigLoaded);
-        let task = Task::batch([config, schedule]);
-        (Self::new(), task)
+        let theme = n_streamer.update_theme();
+
+        let task = Task::batch([config.chain(theme), schedule]);
+        (n_streamer, task)
     }
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
@@ -102,6 +119,11 @@ impl NStreamer {
             Message::ConfigLoaded(config) => {
                 self.config = config.unwrap();
                 Task::none()
+            }
+            Message::UpdateTheme(theme) => {
+                self.config.set_theme(theme);
+
+                self.update_theme()
             }
         }
     }
@@ -155,6 +177,10 @@ impl NStreamer {
             _ => text("Hello World!").into(),
         };
         container(center).center(Length::Fill).into()
+    }
+
+    pub fn theme(&self) -> iced::Theme {
+        self.theme.clone()
     }
 }
 

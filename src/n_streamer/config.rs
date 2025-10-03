@@ -2,10 +2,18 @@ use serde::{Deserialize, Serialize};
 use tokio::{fs::File, io::AsyncReadExt};
 
 use crate::n_streamer::{error::Error, utils::get_project_dir};
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub enum Theme {
+    Light,
+    Dark,
+    System,
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 
 pub struct Config {
     stream_url: Option<String>,
+    theme: Option<Theme>,
 }
 
 impl Config {
@@ -30,5 +38,11 @@ impl Config {
     }
     pub fn stream_url(&self) -> Option<&str> {
         self.stream_url.as_deref()
+    }
+    pub fn theme(&self) -> Theme {
+        self.theme.unwrap_or(Theme::System)
+    }
+    pub fn set_theme(&mut self, theme: Theme) {
+        self.theme = Some(theme)
     }
 }

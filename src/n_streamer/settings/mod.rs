@@ -1,4 +1,5 @@
 mod exit;
+mod theme;
 use iced::widget::button::Status as ButtonStatus;
 use iced::widget::pick_list::Status as PickListStatus;
 use iced::widget::pick_list::Style as PickListStyle;
@@ -15,14 +16,14 @@ use crate::n_streamer::{NStreamer, message::Message};
 pub enum SettingItem {
     Exit,
     Locations,
-    Todo,
+    Theme,
 }
 
 impl fmt::Display for SettingItem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SettingItem::Exit => write!(f, "Exit"),
-            SettingItem::Todo => write!(f, "TODO"),
+            SettingItem::Theme => write!(f, "Theme"),
             SettingItem::Locations => write!(f, "Locations"),
         }
     }
@@ -33,7 +34,11 @@ pub struct Settings;
 
 impl Settings {
     pub fn view(&self) -> Element<'_, Message> {
-        let options = [SettingItem::Locations, SettingItem::Exit, SettingItem::Todo];
+        let options = [
+            SettingItem::Locations,
+            SettingItem::Theme,
+            SettingItem::Exit,
+        ];
         let selected: Option<SettingItem> = None;
         pick_list(options, selected, Message::SettingSelected)
             .placeholder("Settings")
@@ -73,8 +78,9 @@ impl NStreamer {
             SettingItem::Locations => {
                 todo!()
             }
-            SettingItem::Todo => {
-                todo!()
+            SettingItem::Theme => {
+                self.user_interaction = Some(Box::new(|s| s.view_theme_popup()));
+                Task::none()
             }
         }
     }

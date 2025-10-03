@@ -5,7 +5,7 @@ use iced_video_player::Video;
 
 use crate::n_streamer::{
     Center,
-    config::Config,
+    config::{Config, Theme},
     error::Error,
     program_schedule::{analyzed_schedule::AnalyzedEpisode, parsed_schedule::Schedule},
     settings::SettingItem,
@@ -22,4 +22,5 @@ pub enum Message {
     ScheduleProgramSelected(AnalyzedEpisode),
     NewSchedule(Result<Schedule, Error>),
     ConfigLoaded(Result<Config, Error>),
+    UpdateTheme(Theme),
 }
