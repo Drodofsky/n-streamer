@@ -52,7 +52,7 @@ impl From<iced_video_player::Error> for Error {
 
 impl From<std::io::Error> for Error {
     fn from(value: std::io::Error) -> Self {
-        Self::IO(format!("{:#?}", value.kind()))
+        Self::IO(value.to_string())
     }
 }
 impl fmt::Display for Error {
