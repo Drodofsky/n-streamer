@@ -75,6 +75,7 @@ impl NStreamer {
     fn set_config(&mut self, config: Config) {
         self.config = config;
     }
+
     async fn init_db(config: Config) -> Result<Database, Error> {
         let error = Error::Config("Failed to get media path".to_string());
         if let Some(path) = config.media_path() {

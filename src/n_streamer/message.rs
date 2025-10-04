@@ -32,5 +32,5 @@ pub enum Message {
     OpenMediaPathBrowser,
     SaveAndClosePopup,
     DatabaseLoaded(Result<Database, Error>),
-    DatabaseInitialized(Result<(), Error>),
+    Database(Result<(), Error>),
 }

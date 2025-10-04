@@ -53,7 +53,14 @@ impl NStreamer {
             Message::NewSchedule(schedule) => {
                 let res = self.program_schedule.new_schedule(schedule);
                 self.apply_result(res);
-                Task::none()
+
+                if let Some(db) = &self.db {
+                    let connection = db.connect();
+                    let episodes = self.program_schedule.schedule();
+                    Task::perform(db::add_episodes(connection, episodes), Message::Database)
+                } else {
+                    Task::none()
+                }
             }
             Message::ScheduleProgramSelected(program) => {
                 self.program_schedule.select_episode(program);
@@ -73,12 +80,12 @@ impl NStreamer {
                 self.apply_result_and(db, Self::set_database);
                 if let Some(db) = &self.db {
                     let connection = db.connect();
-                    Task::perform(db::init_db(connection), Message::DatabaseInitialized)
+                    Task::perform(db::init_db(connection), Message::Database)
                 } else {
                     Task::none()
                 }
             }
-            Message::DatabaseInitialized(res) => {
+            Message::Database(res) => {
                 self.apply_result(res);
                 Task::none()
             }

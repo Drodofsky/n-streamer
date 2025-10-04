@@ -42,6 +42,9 @@ impl ProgramSchedule {
             .into(),
         }
     }
+    pub fn schedule(&self) -> Vec<AnalyzedEpisode> {
+        self.schedule.as_ref().cloned().unwrap_or_default().episodes
+    }
     pub fn get_current_episode(&self) -> Option<&str> {
         self.current_episode
             .as_ref()

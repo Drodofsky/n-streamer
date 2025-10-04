@@ -22,7 +22,7 @@ pub struct AnalyzedEpisode {
     pub bilingual_flg: Option<bool>,
     pub english_flg: Option<bool>,
 }
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct AnalyzedSchedule {
     pub episodes: Vec<AnalyzedEpisode>,
 }
