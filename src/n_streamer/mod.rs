@@ -20,7 +20,7 @@ use iced::{
     Alignment, Element,
     Length::{self, Fill},
     Subscription, Task,
-    widget::{column, container, row, stack, text},
+    widget::{column, container, row, text},
     window,
 };
 
@@ -176,7 +176,7 @@ impl NStreamer {
         if let Some(interaction) = &self.user_interaction {
             let mut col = column![];
             col = col.push(self.view_top());
-            col = col.push(stack([self.view_center(), (interaction(self))]));
+            col = col.push(interaction(self));
             return col.into();
         }
         column![self.view_top(), self.view_center()].into()
