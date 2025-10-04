@@ -150,6 +150,18 @@ impl ProgramSchedule {
         }
         Ok(json.item)
     }
+
+    pub async fn get_analyzed_schedule() -> Result<AnalyzedSchedule, Error> {
+        let json: ScheduleRequest =
+            reqwest::get("https://nhkworldpremium.com/backend/api/v1/front/episodes?lang=en")
+                .await?
+                .json()
+                .await?;
+        if json.status != 400 {
+            return Err(Error::Api(format!("API: {}", json.status)));
+        }
+        json.item.try_into()
+    }
     fn set_new_schedule(&mut self, schedule: Schedule) -> Result<(), Error> {
         let schedule = AnalyzedSchedule::try_from(schedule)?;
         if self.selected_program.is_none() {

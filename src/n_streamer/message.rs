@@ -14,6 +14,7 @@ use crate::n_streamer::{
 #[derive(Debug, Clone)]
 pub enum Message {
     Tick,
+    LongTick,
     ExitRequest(Id),
     ClosePopUp,
     Exit(Id),
@@ -25,12 +26,11 @@ pub enum Message {
     ConfigLoaded(Result<Config, Error>),
     UpdateTheme(Theme),
     ApplyTheme(iced::Theme),
-    Saved(Result<(), Error>),
     NewStreamUrl(String),
     NewMediaPath(String),
     MaybeNewMediaPath(Option<String>),
     OpenMediaPathBrowser,
     SaveAndClosePopup,
     DatabaseLoaded(Result<Database, Error>),
-    Database(Result<(), Error>),
+    Result(Result<(), Error>),
 }

@@ -1,7 +1,7 @@
 use iced::{Task, window};
 
 use crate::n_streamer::{
-    Center, NStreamer, config::Config, db, message::Message, settings::Settings,
+    Center, NStreamer, config::Config, db, download_schedule, message::Message, settings::Settings,
     utils::get_default_media_dir,
 };
 
@@ -13,6 +13,14 @@ impl NStreamer {
                 let res = self.program_schedule.update_current_episode();
                 self.apply_result(res);
                 Task::none()
+            }
+            Message::LongTick => {
+                if let Some(db) = &self.db {
+                    let connection = db.connect();
+                    Task::perform(download_schedule(connection), Message::Result)
+                } else {
+                    Task::none()
+                }
             }
             Message::ExitRequest(id) => {
                 self.user_interaction = Some(Box::new(move |s| s.view_exit_popup(id)));
@@ -57,7 +65,7 @@ impl NStreamer {
                 if let Some(db) = &self.db {
                     let connection = db.connect();
                     let episodes = self.program_schedule.schedule();
-                    Task::perform(db::add_episodes(connection, episodes), Message::Database)
+                    Task::perform(db::add_episodes(connection, episodes), Message::Result)
                 } else {
                     Task::none()
                 }
@@ -80,14 +88,10 @@ impl NStreamer {
                 self.apply_result_and(db, Self::set_database);
                 if let Some(db) = &self.db {
                     let connection = db.connect();
-                    Task::perform(db::init_db(connection), Message::Database)
+                    Task::perform(db::init_db(connection), Message::Result)
                 } else {
                     Task::none()
                 }
-            }
-            Message::Database(res) => {
-                self.apply_result(res);
-                Task::none()
             }
             Message::UpdateTheme(theme) => {
                 self.user_interaction = None;
@@ -100,7 +104,7 @@ impl NStreamer {
                 self.theme = theme;
                 Task::none()
             }
-            Message::Saved(result) => {
+            Message::Result(result) => {
                 self.apply_result(result);
                 Task::none()
             }
@@ -123,7 +127,7 @@ impl NStreamer {
             }
             Message::SaveAndClosePopup => {
                 self.user_interaction = None;
-                Task::perform(Config::save(self.config.clone()), Message::Saved)
+                Task::perform(Config::save(self.config.clone()), Message::Result)
             }
         }
     }

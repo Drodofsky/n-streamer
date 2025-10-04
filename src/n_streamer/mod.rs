@@ -18,7 +18,7 @@ use crate::n_streamer::{
 use iced::{Subscription, Task, window};
 
 use message::Message;
-use turso::{Builder, Database};
+use turso::{Builder, Connection, Database};
 
 use crate::n_streamer::{settings::Settings, time::Time, ui_utils::DynView};
 
@@ -65,8 +65,9 @@ impl NStreamer {
 
     pub fn subscription(&self) -> Subscription<Message> {
         let tick = iced::time::every(Duration::from_millis(500)).map(|_| Message::Tick);
+        let long_tick = iced::time::every(Duration::from_secs(3600)).map(|_| Message::LongTick);
         let close = window::close_requests().map(Message::ExitRequest);
-        Subscription::batch([tick, close])
+        Subscription::batch([tick, close, long_tick])
     }
 
     pub fn theme(&self) -> iced::Theme {
@@ -98,4 +99,11 @@ pub enum Center {
     LiveStream,
     Downloads,
     Library,
+}
+
+async fn download_schedule(connection: Result<Connection, turso::Error>) -> Result<(), Error> {
+    let schedule = ProgramSchedule::get_analyzed_schedule().await?;
+    db::add_episodes(connection, schedule.episodes).await?;
+
+    Ok(())
 }

@@ -67,6 +67,6 @@ impl Config {
     }
     pub fn set_theme(&mut self, theme: Theme) -> Task<Message> {
         self.theme = Some(theme);
-        Task::perform(Self::save(self.clone()), Message::Saved)
+        Task::perform(Self::save(self.clone()), Message::Result)
     }
 }
