@@ -8,7 +8,7 @@ use crate::n_streamer::{
     Center,
     config::{Config, Theme},
     error::Error,
-    program_schedule::{analyzed_schedule::AnalyzedEpisode, parsed_schedule::Schedule},
+    program_schedule::analyzed_schedule::AnalyzedEpisode,
     settings::SettingItem,
 };
 #[derive(Debug, Clone)]
@@ -21,8 +21,6 @@ pub enum Message {
     SettingSelected(SettingItem),
     NewLiveStream(Result<Arc<Video>, Error>),
     MenuButtonPressed(Center),
-    ScheduleProgramSelected(AnalyzedEpisode),
-    NewSchedule(Result<Schedule, Error>),
     ConfigLoaded(Result<Config, Error>),
     UpdateTheme(Theme),
     ApplyTheme(iced::Theme),
@@ -33,4 +31,7 @@ pub enum Message {
     SaveAndClosePopup,
     DatabaseLoaded(Result<Database, Error>),
     Result(Result<(), Error>),
+    DbInitialized(Result<(), Error>),
+    LoadedEpisodes(Result<Vec<AnalyzedEpisode>, Error>),
+    CurrentEpisode(Result<Option<AnalyzedEpisode>, Error>),
 }

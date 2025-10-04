@@ -55,11 +55,10 @@ impl NStreamer {
         Self::default()
     }
     pub fn init() -> (Self, Task<Message>) {
-        let mut n_streamer = Self::new();
-        let schedule = n_streamer.program_schedule.update_schedule();
+        let n_streamer = Self::new();
         let config = Task::perform(Config::load(), Message::ConfigLoaded);
 
-        let task = Task::batch([config, schedule]);
+        let task = Task::batch([config]);
         (n_streamer, task)
     }
 

@@ -1,0 +1,1 @@
+SELECT * FROM episode ORDER BY schedule ASC;

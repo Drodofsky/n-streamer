@@ -9,10 +9,26 @@ impl NStreamer {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::Tick => {
+                let mut tasks = Vec::new();
                 self.time.update();
                 let res = self.program_schedule.update_current_episode();
-                self.apply_result(res);
-                Task::none()
+                match res {
+                    Ok(t) => {
+                        if let Some(task) = t {
+                            tasks.push(task);
+                        }
+                    }
+                    Err(e) => {
+                        self.apply_result::<()>(Err(e));
+                    }
+                }
+
+                /*  if let Some(db) = &self.db {
+                    let connection = db.connect();
+                     tasks.push( Task::perform(get_episodes(connection), Message::LoadedEpisodes));
+                }*/
+
+                Task::batch(tasks)
             }
             Message::LongTick => {
                 if let Some(db) = &self.db {
@@ -21,6 +37,14 @@ impl NStreamer {
                 } else {
                     Task::none()
                 }
+            }
+            Message::LoadedEpisodes(e) => {
+                self.apply_result_and(e, |s, e| s.program_schedule.set_schedule(e));
+                Task::none()
+            }
+            Message::CurrentEpisode(e) => {
+                self.apply_result_and(e, |s, e| s.program_schedule.set_current_episode(e));
+                Task::none()
             }
             Message::ExitRequest(id) => {
                 self.user_interaction = Some(Box::new(move |s| s.view_exit_popup(id)));
@@ -58,22 +82,7 @@ impl NStreamer {
                 self.center = c;
                 Task::none()
             }
-            Message::NewSchedule(schedule) => {
-                let res = self.program_schedule.new_schedule(schedule);
-                self.apply_result(res);
 
-                if let Some(db) = &self.db {
-                    let connection = db.connect();
-                    let episodes = self.program_schedule.schedule();
-                    Task::perform(db::add_episodes(connection, episodes), Message::Result)
-                } else {
-                    Task::none()
-                }
-            }
-            Message::ScheduleProgramSelected(program) => {
-                self.program_schedule.select_episode(program);
-                Task::none()
-            }
             Message::ConfigLoaded(config) => {
                 self.apply_result_and(config, Self::set_config);
                 if self.config.media_path().is_none() {
@@ -87,11 +96,25 @@ impl NStreamer {
             Message::DatabaseLoaded(db) => {
                 self.apply_result_and(db, Self::set_database);
                 if let Some(db) = &self.db {
-                    let connection = db.connect();
-                    Task::perform(db::init_db(connection), Message::Result)
+                    let connection1 = db.connect();
+                    let connection2 = db.connect();
+
+                    Task::perform(db::init_db(connection1), Message::DbInitialized).chain(
+                        Task::perform(download_schedule(connection2), Message::Result),
+                    )
                 } else {
                     Task::none()
                 }
+            }
+            Message::DbInitialized(result) => {
+                self.apply_result(result);
+                if let Some(db) = &self.db {
+                    let connection = db.connect().map_err(|e| e.into());
+                    self.apply_result_and(connection, |s, con| {
+                        s.program_schedule.set_connectoin(con)
+                    });
+                }
+                Task::none()
             }
             Message::UpdateTheme(theme) => {
                 self.user_interaction = None;
