@@ -1,4 +1,5 @@
 mod exit;
+mod locations;
 mod theme;
 use iced::widget::button::Status as ButtonStatus;
 use iced::widget::pick_list::Status as PickListStatus;
@@ -76,7 +77,8 @@ impl NStreamer {
                 None => Message::Tick,
             }),
             SettingItem::Locations => {
-                todo!()
+                self.user_interaction = Some(Box::new(|s| s.view_locations_popup()));
+                Task::none()
             }
             SettingItem::Theme => {
                 self.user_interaction = Some(Box::new(|s| s.view_theme_popup()));

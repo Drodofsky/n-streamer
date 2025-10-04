@@ -24,5 +24,10 @@ pub enum Message {
     ConfigLoaded(Result<Config, Error>),
     UpdateTheme(Theme),
     ApplyTheme(iced::Theme),
-    Save(Result<(), Error>),
+    Saved(Result<(), Error>),
+    NewStreamUrl(String),
+    NewMediaPath(String),
+    MaybeNewMediaPath(Option<String>),
+    OpenMediaPathBrowser,
+    SaveAndClosePopup,
 }

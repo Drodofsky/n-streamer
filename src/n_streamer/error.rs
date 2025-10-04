@@ -1,6 +1,6 @@
 use std::fmt;
 
-use iced::{widget::row, Element, Length::FillPortion};
+use iced::{Element, Length::FillPortion, widget::row};
 
 use crate::{
     button_text,
@@ -98,6 +98,7 @@ impl NStreamer {
             message.to_string(),
             row![
                 button_text!("ok")
+                    .style(iced::widget::button::danger)
                     .width(FillPortion(1))
                     .on_press(Message::ClosePopUp)
             ]

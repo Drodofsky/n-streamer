@@ -12,7 +12,7 @@ use crate::{
     button_text,
     n_streamer::{
         config::Config, live_stream::LiveStream, program_schedule::ProgramSchedule,
-        ui_utils::SPACING,
+        ui_utils::SPACING, utils::get_default_media_dir,
     },
     primary_text,
 };
@@ -122,6 +122,11 @@ impl NStreamer {
             }
             Message::ConfigLoaded(config) => {
                 self.apply_result_and(config, Self::set_config);
+                if self.config.media_path().is_none() {
+                    self.apply_result_and(get_default_media_dir(), |s, path| {
+                        s.config.set_media_path(path)
+                    });
+                }
                 self.update_theme()
             }
             Message::UpdateTheme(theme) => {
@@ -135,9 +140,30 @@ impl NStreamer {
                 self.theme = theme;
                 Task::none()
             }
-            Message::Save(result) => {
+            Message::Saved(result) => {
                 self.apply_result(result);
                 Task::none()
+            }
+            Message::NewStreamUrl(url) => {
+                self.config.set_stream_url(url);
+                Task::none()
+            }
+            Message::NewMediaPath(path) => {
+                self.config.set_media_path(path.into());
+                Task::none()
+            }
+            Message::MaybeNewMediaPath(path) => {
+                if let Some(path) = path {
+                    self.config.set_media_path(path.into());
+                }
+                Task::none()
+            }
+            Message::OpenMediaPathBrowser => {
+                Task::perform(Settings::browse_media_path(), Message::MaybeNewMediaPath)
+            }
+            Message::SaveAndClosePopup => {
+                self.user_interaction = None;
+                Task::perform(Config::save(self.config.clone()), Message::Saved)
             }
         }
     }

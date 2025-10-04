@@ -14,8 +14,7 @@ macro_rules! pop_up {
                 iced::widget::container(iced::widget::column![
                     iced::widget::container(iced::widget::text($message))
                         .padding($crate::n_streamer::ui_utils::PADDING),
-                    iced::widget::container(iced::widget::rule::horizontal(2))
-                        .padding($crate::n_streamer::ui_utils::PADDING),
+                    $crate::hl!(2).padding($crate::n_streamer::ui_utils::PADDING),
                     $action
                 ])
                 .style(iced::widget::container::bordered_box)
@@ -68,4 +67,14 @@ pub fn fmt_period(period: &TimeDelta) -> String {
         (seconds % 3600) / 60,
         seconds % 60
     )
+}
+
+#[macro_export]
+macro_rules! hl {
+    () => {
+        iced::widget::container(iced::widget::rule::horizontal(1))
+    };
+    ($size:expr) => {
+        iced::widget::container(iced::widget::rule::horizontal($size))
+    };
 }
