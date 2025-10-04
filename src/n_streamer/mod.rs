@@ -3,7 +3,9 @@ mod message;
 mod settings;
 mod time;
 use std::time::Duration;
+
 mod config;
+mod db;
 mod error;
 mod program_schedule;
 mod ui_utils;
@@ -11,11 +13,12 @@ mod update;
 mod utils;
 mod view;
 use crate::n_streamer::{
-    config::Config, live_stream::LiveStream, program_schedule::ProgramSchedule,
+    config::Config, error::Error, live_stream::LiveStream, program_schedule::ProgramSchedule,
 };
 use iced::{Subscription, Task, window};
 
 use message::Message;
+use turso::{Builder, Database};
 
 use crate::n_streamer::{settings::Settings, time::Time, ui_utils::DynView};
 
@@ -28,6 +31,7 @@ pub struct NStreamer {
     center: Center,
     program_schedule: ProgramSchedule,
     config: Config,
+    db: Option<Database>,
 }
 
 impl Default for NStreamer {
@@ -41,6 +45,7 @@ impl Default for NStreamer {
             center: Center::default(),
             program_schedule: ProgramSchedule::default(),
             config: Config::default(),
+            db: None,
         }
     }
 }
@@ -69,6 +74,19 @@ impl NStreamer {
     }
     fn set_config(&mut self, config: Config) {
         self.config = config;
+    }
+    async fn init_db(config: Config) -> Result<Database, Error> {
+        let error = Error::Config("Failed to get media path".to_string());
+        if let Some(path) = config.media_path() {
+            let path = path.join("db.sqlite");
+            let path = path.to_str().ok_or(error)?;
+            Ok(Builder::new_local(path).build().await?)
+        } else {
+            Err(error)
+        }
+    }
+    fn set_database(&mut self, db: Database) {
+        self.db = Some(db);
     }
 }
 

@@ -17,7 +17,8 @@ pub enum Error {
     FileSystem(String),
     IO(String),
     Download(String),
-    ConfigParsing(String),
+    Config(String),
+    Database(String),
 }
 
 impl From<reqwest::Error> for Error {
@@ -40,19 +41,25 @@ impl From<url::ParseError> for Error {
 
 impl From<toml::de::Error> for Error {
     fn from(value: toml::de::Error) -> Self {
-        Self::ConfigParsing(value.to_string())
+        Self::Config(value.to_string())
     }
 }
 
 impl From<toml::ser::Error> for Error {
     fn from(value: toml::ser::Error) -> Self {
-        Self::ConfigParsing(value.to_string())
+        Self::Config(value.to_string())
     }
 }
 
 impl From<iced_video_player::Error> for Error {
     fn from(value: iced_video_player::Error) -> Self {
         Self::VideoPlayer(value.to_string())
+    }
+}
+
+impl From<turso::Error> for Error {
+    fn from(value: turso::Error) -> Self {
+        Self::Database(value.to_string())
     }
 }
 
@@ -85,8 +92,11 @@ impl fmt::Display for Error {
             Self::Download(e) => {
                 write!(f, "Download: {}", e)
             }
-            Self::ConfigParsing(e) => {
-                write!(f, "Config Parsing: {}", e)
+            Self::Config(e) => {
+                write!(f, "Config: {}", e)
+            }
+            Self::Database(e) => {
+                write!(f, "Database: {}", e)
             }
         }
     }

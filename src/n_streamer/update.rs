@@ -1,7 +1,7 @@
 use iced::{Task, window};
 
 use crate::n_streamer::{
-    Center, NStreamer, config::Config, message::Message, settings::Settings,
+    Center, NStreamer, config::Config, db, message::Message, settings::Settings,
     utils::get_default_media_dir,
 };
 
@@ -66,7 +66,21 @@ impl NStreamer {
                         s.config.set_media_path(path)
                     });
                 }
-                self.update_theme()
+                let db = Task::perform(Self::init_db(self.config.clone()), Message::DatabaseLoaded);
+                Task::batch([self.update_theme(), db])
+            }
+            Message::DatabaseLoaded(db) => {
+                self.apply_result_and(db, Self::set_database);
+                if let Some(db) = &self.db {
+                    let connection = db.connect();
+                    Task::perform(db::init_db(connection), Message::DatabaseInitialized)
+                } else {
+                    Task::none()
+                }
+            }
+            Message::DatabaseInitialized(res) => {
+                self.apply_result(res);
+                Task::none()
             }
             Message::UpdateTheme(theme) => {
                 self.user_interaction = None;

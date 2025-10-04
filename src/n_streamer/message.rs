@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use iced::window::Id;
 use iced_video_player::Video;
+use turso::Database;
 
 use crate::n_streamer::{
     Center,
@@ -30,4 +31,6 @@ pub enum Message {
     MaybeNewMediaPath(Option<String>),
     OpenMediaPathBrowser,
     SaveAndClosePopup,
+    DatabaseLoaded(Result<Database, Error>),
+    DatabaseInitialized(Result<(), Error>),
 }
