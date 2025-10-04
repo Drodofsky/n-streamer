@@ -30,6 +30,8 @@ impl NStreamer {
                 Task::none()
             }
             Message::MenuButtonPressed(Center::LiveStream) => {
+                self.user_interaction = None;
+
                 if let Some(url) = self.config.stream_url() {
                     self.center = Center::LiveStream;
 
@@ -44,6 +46,7 @@ impl NStreamer {
                 }
             }
             Message::MenuButtonPressed(c) => {
+                self.user_interaction = None;
                 self.center = c;
                 Task::none()
             }
