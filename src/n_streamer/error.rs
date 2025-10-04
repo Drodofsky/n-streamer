@@ -1,6 +1,6 @@
 use std::fmt;
 
-use iced::{Element, Length::FillPortion, widget::container};
+use iced::{widget::row, Element, Length::FillPortion};
 
 use crate::{
     button_text,
@@ -96,11 +96,11 @@ impl NStreamer {
     pub(crate) fn view_error_popup(&self, message: String) -> Element<'_, Message> {
         pop_up!(
             message.to_string(),
-            container(
+            row![
                 button_text!("ok")
                     .width(FillPortion(1))
                     .on_press(Message::ClosePopUp)
-            )
+            ]
             .padding(PADDING)
         )
         .into()
