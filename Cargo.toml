@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-iced = {git="https://github.com/iced-rs/iced.git", features = ["tokio", "wgpu","tokio","tiny-skia","crisp","thread-pool","linux-theme-detection"],default-features = false}
+iced = {git="https://github.com/iced-rs/iced.git", features = ["tokio"]}
 chrono = {version = "^0.4",features = ["serde"]}
 chrono-tz = "^0.10"
 tokio = {version = "^1.40",features = ["process","fs"]}
