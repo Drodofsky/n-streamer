@@ -14,13 +14,10 @@ pub(crate) async fn init_db(connection: Result<Connection, turso::Error>) -> Res
 
 pub(crate) async fn get_current_episodes(
     connection: Connection,
-    last_schedule: String,
+    after: String,
 ) -> Result<Option<AnalyzedEpisode>, Error> {
     let mut rows = connection
-        .query(
-            include_str!("../db/get_current_episode.sql"),
-            [last_schedule],
-        )
+        .query(include_str!("../db/get_current_episode.sql"), [after])
         .await?;
     let error = Error::Database("Failed to load episode".to_string());
     if let Some(row) = rows.next().await? {

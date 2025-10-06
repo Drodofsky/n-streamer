@@ -1,7 +1,7 @@
 pub mod analyzed_schedule;
 pub mod parsed_schedule;
 
-use chrono::{Local, TimeDelta};
+use chrono::Local;
 use iced::{
     Element,
     Length::Fill,
@@ -73,24 +73,15 @@ impl ProgramSchedule {
             }
         }
         if let Some(connection) = self.connection.clone() {
-            let last_episode = self
-                .current_episode
-                .as_ref()
-                .map(|c| c.schedule.to_string())
-                .unwrap_or(
-                    Local::now()
-                        .checked_sub_signed(TimeDelta::hours(3))
-                        .ok_or(Error::Chrono("failed to calculate time offset".to_string()))?
-                        .to_string(),
-                );
+            let time = Local::now().to_string();
 
             let current_episode_task = Task::perform(
-                db::get_current_episodes(connection.clone(), last_episode.clone()),
+                db::get_current_episodes(connection.clone(), time.clone()),
                 Message::CurrentEpisode,
             );
 
             let get_episodes_task = Task::perform(
-                db::get_episodes(connection.clone(), last_episode),
+                db::get_episodes(connection.clone(), time),
                 Message::LoadedEpisodes,
             );
 
