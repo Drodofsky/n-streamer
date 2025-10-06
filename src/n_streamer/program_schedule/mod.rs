@@ -85,12 +85,12 @@ impl ProgramSchedule {
                 );
 
             let current_episode_task = Task::perform(
-                db::get_current_episodes(connection.clone(), last_episode),
+                db::get_current_episodes(connection.clone(), last_episode.clone()),
                 Message::CurrentEpisode,
             );
 
             let get_episodes_task = Task::perform(
-                db::get_episodes(connection.clone()),
+                db::get_episodes(connection.clone(), last_episode),
                 Message::LoadedEpisodes,
             );
 

@@ -55,9 +55,12 @@ pub(crate) async fn get_current_episodes(
     Ok(None)
 }
 
-pub(crate) async fn get_episodes(connection: Connection) -> Result<Vec<AnalyzedEpisode>, Error> {
+pub(crate) async fn get_episodes(
+    connection: Connection,
+    after: String,
+) -> Result<Vec<AnalyzedEpisode>, Error> {
     let mut rows = connection
-        .query(include_str!("../db/get_episode.sql"), ())
+        .query(include_str!("../db/get_episode.sql"), [after])
         .await?;
     let mut episodes = Vec::new();
     let error = Error::Database("Failed to load episode".to_string());
