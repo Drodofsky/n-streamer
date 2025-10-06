@@ -2,7 +2,12 @@ pub mod analyzed_schedule;
 pub mod parsed_schedule;
 
 use chrono::{Local, TimeDelta};
-use iced::{Element, Task, widget::text};
+use iced::{
+    Element,
+    Length::Fill,
+    Task,
+    widget::{Column, row, scrollable, space, text},
+};
 use turso::Connection;
 
 use crate::n_streamer::{
@@ -13,6 +18,7 @@ use crate::n_streamer::{
         analyzed_schedule::{AnalyzedEpisode, AnalyzedSchedule},
         parsed_schedule::ScheduleRequest,
     },
+    ui_utils::{PADDING, SPACING},
 };
 
 #[derive(Debug, Default)]
@@ -24,7 +30,18 @@ pub struct ProgramSchedule {
 
 impl ProgramSchedule {
     pub fn view(&self) -> Element<'_, Message> {
-        text("TODO").into()
+        let episodes = self.episodes.iter().fold(Column::new(), |c, e| {
+            c.push(
+                row![
+                    text(&e.program_title),
+                    space().width(Fill),
+                    text(e.schedule.to_string())
+                ]
+                .padding(PADDING)
+                .spacing(SPACING),
+            )
+        });
+        scrollable(episodes.padding(PADDING).width(Fill)).into()
     }
     pub fn schedule(&self) -> &[AnalyzedEpisode] {
         &self.episodes
@@ -44,7 +61,7 @@ impl ProgramSchedule {
         self.current_episode = episode;
     }
 
-    pub fn update_current_episode(&mut self) -> Result<Option<Task<Message>>, Error> {
+    pub fn update(&mut self) -> Result<Option<Task<Message>>, Error> {
         if let Some(ce) = &self.current_episode {
             let now = Local::now();
             if now
@@ -66,10 +83,18 @@ impl ProgramSchedule {
                         .ok_or(Error::Chrono("failed to calculate time offset".to_string()))?
                         .to_string(),
                 );
-            Ok(Some(Task::perform(
+
+            let current_episode_task = Task::perform(
                 db::get_current_episodes(connection.clone(), last_episode),
                 Message::CurrentEpisode,
-            )))
+            );
+
+            let get_episodes_task = Task::perform(
+                db::get_episodes(connection.clone()),
+                Message::LoadedEpisodes,
+            );
+
+            Ok(Some(current_episode_task.chain(get_episodes_task)))
         } else {
             Ok(None)
         }

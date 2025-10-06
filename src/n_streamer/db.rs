@@ -55,10 +55,7 @@ pub(crate) async fn get_current_episodes(
     Ok(None)
 }
 
-pub(crate) async fn get_episodes(
-    connection: Result<Connection, turso::Error>,
-) -> Result<Vec<AnalyzedEpisode>, Error> {
-    let connection = connection?;
+pub(crate) async fn get_episodes(connection: Connection) -> Result<Vec<AnalyzedEpisode>, Error> {
     let mut rows = connection
         .query(include_str!("../db/get_episode.sql"), ())
         .await?;

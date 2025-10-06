@@ -11,7 +11,7 @@ impl NStreamer {
             Message::Tick => {
                 let mut tasks = Vec::new();
                 self.time.update();
-                let res = self.program_schedule.update_current_episode();
+                let res = self.program_schedule.update();
                 match res {
                     Ok(t) => {
                         if let Some(task) = t {
