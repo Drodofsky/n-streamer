@@ -5,8 +5,8 @@ use chrono::Local;
 use iced::{
     Element,
     Length::Fill,
-    Task,
-    widget::{Column, row, scrollable, space, text},
+    Task, Theme,
+    widget::{self, Column, mouse_area, row, scrollable, space, text},
 };
 use turso::Connection;
 
@@ -23,6 +23,7 @@ use crate::n_streamer::{
 
 #[derive(Debug, Default)]
 pub struct ProgramSchedule {
+    hovered_episode: usize,
     current_episode: Option<AnalyzedEpisode>,
     episodes: Vec<AnalyzedEpisode>,
     connection: Option<Connection>,
@@ -30,17 +31,34 @@ pub struct ProgramSchedule {
 
 impl ProgramSchedule {
     pub fn view(&self) -> Element<'_, Message> {
-        let episodes = self.episodes.iter().fold(Column::new(), |c, e| {
-            c.push(
-                row![
-                    text(&e.program_title),
-                    space().width(Fill),
-                    text(e.schedule.to_string())
-                ]
-                .padding(PADDING)
-                .spacing(SPACING),
-            )
-        });
+        let episodes = self
+            .episodes
+            .iter()
+            .enumerate()
+            .fold(Column::new(), |c, (id, e)| {
+                c.push(
+                    mouse_area(
+                        widget::container(
+                            row![
+                                text(&e.program_title),
+                                space().width(Fill),
+                                text(e.schedule.to_string())
+                            ]
+                            .padding(PADDING)
+                            .spacing(SPACING),
+                        )
+                        .style(move |theme: &Theme| {
+                            if self.hovered_episode == id {
+                                widget::container::transparent(theme)
+                                    .background(theme.extended_palette().background.strong.color)
+                            } else {
+                                widget::container::transparent(theme)
+                            }
+                        }),
+                    )
+                    .on_enter(Message::ScheduleElementEntered(id)),
+                )
+            });
         scrollable(episodes.padding(PADDING).width(Fill)).into()
     }
     pub fn schedule(&self) -> &[AnalyzedEpisode] {
@@ -59,6 +77,9 @@ impl ProgramSchedule {
     }
     pub fn set_current_episode(&mut self, episode: Option<AnalyzedEpisode>) {
         self.current_episode = episode;
+    }
+    pub fn set_hovered_episode(&mut self, id: usize) {
+        self.hovered_episode = id;
     }
 
     pub fn update(&mut self) -> Result<Option<Task<Message>>, Error> {

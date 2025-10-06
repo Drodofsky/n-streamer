@@ -33,5 +33,6 @@ pub enum Message {
     Result(Result<(), Error>),
     DbInitialized(Result<(), Error>),
     LoadedEpisodes(Result<Vec<AnalyzedEpisode>, Error>),
+    ScheduleElementEntered(usize),
     CurrentEpisode(Result<Option<AnalyzedEpisode>, Error>),
 }

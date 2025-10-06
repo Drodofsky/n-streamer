@@ -42,6 +42,10 @@ impl NStreamer {
                 self.apply_result_and(e, |s, e| s.program_schedule.set_schedule(e));
                 Task::none()
             }
+            Message::ScheduleElementEntered(id) => {
+                self.program_schedule.set_hovered_episode(id);
+                Task::none()
+            }
             Message::CurrentEpisode(e) => {
                 self.apply_result_and(e, |s, e| s.program_schedule.set_current_episode(e));
                 Task::none()
