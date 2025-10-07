@@ -5,6 +5,7 @@ use crate::n_streamer::{error::Error, program_schedule::analyzed_schedule::Analy
 
 pub(crate) async fn init_db(connection: Result<Connection, turso::Error>) -> Result<(), Error> {
     let connection = connection?;
+    connection.query("PRAGMA journal_mode=WAL;", ()).await?;
     connection
         .execute(include_str!("../db/create_table_episode.sql"), ())
         .await?;
