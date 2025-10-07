@@ -70,6 +70,9 @@ pub(crate) async fn get_episodes(
         let episode_id = row.get_value(2)?;
         let episode_id = episode_id.as_integer().ok_or(error.clone())?;
 
+        let episode_title = row.get_value(3)?;
+        let episode_title = episode_title.as_text().map(|e| e.to_string());
+
         let suspend_flg = row.get_value(4)?;
         let suspend_flg = suspend_flg.as_integer().ok_or(error.clone())?;
         let schedule = row.get_value(5)?;
@@ -83,6 +86,7 @@ pub(crate) async fn get_episodes(
             program_id: *program_id,
             program_title: program_title.to_string(),
             episode_id: *episode_id,
+            episode_title: episode_title,
             schedule: schedule.with_timezone(&Local),
             period: period,
             suspend_flg: *suspend_flg != 0,
