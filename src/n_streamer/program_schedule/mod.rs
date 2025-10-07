@@ -40,9 +40,17 @@ impl ProgramSchedule {
                     mouse_area(
                         widget::container(
                             row![
-                                text(&e.program_title),
+                                text(e.program_title.as_str()).style(move |theme: &Theme| {
+                                    if self.hovered_episode == id {
+                                        let mut style = widget::text::default(theme);
+                                        style.color =
+                                            Some(theme.extended_palette().background.strong.text);
+                                        style
+                                    } else {
+                                        widget::text::default(theme)
+                                    }
+                                }),
                                 space().width(Fill),
-                                text(e.schedule.to_string())
                             ]
                             .padding(PADDING)
                             .spacing(SPACING),
