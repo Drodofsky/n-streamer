@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local, TimeDelta};
-use turso::Connection;
+use turso::{Connection, Row};
 
 use crate::n_streamer::{error::Error, program_schedule::analyzed_schedule::AnalyzedEpisode};
 
@@ -13,6 +13,48 @@ pub(crate) async fn init_db(connection: Result<Connection, turso::Error>) -> Res
     Ok(())
 }
 
+fn row_to_episode(row: Row) -> Result<AnalyzedEpisode, Error> {
+    let error = Error::Database("Failed to load episode".to_string());
+
+    let program_id = row.get_value(0)?;
+    let program_id = program_id.as_integer().ok_or(error.clone())?;
+    let program_title = row.get_value(1)?;
+    let program_title = program_title.as_text().ok_or(error.clone())?;
+    let episode_id = row.get_value(2)?;
+    let episode_id = episode_id.as_integer().ok_or(error.clone())?;
+    let episode_title = row.get_value(3)?;
+    let episode_title = episode_title.as_text().map(|e| e.to_string());
+    let suspend_flg = row.get_value(4)?;
+    let suspend_flg = suspend_flg.as_integer().ok_or(error.clone())?;
+    let schedule = row.get_value(5)?;
+    let schedule = schedule.as_text().ok_or(error.clone())?;
+    let period = row.get_value(6)?;
+    let period = period.as_integer().ok_or(error.clone())?;
+    let schedule = DateTime::parse_from_str(schedule, "%Y-%m-%d %H:%M:%S %:z")?;
+    let period = TimeDelta::seconds(*period);
+    let rebroadcast_flg = row.get_value(7)?;
+    let rebroadcast_flg = rebroadcast_flg.as_integer().map(|f| *f != 0);
+    let bilingual_flg = row.get_value(8)?;
+    let bilingual_flg = bilingual_flg.as_integer().map(|f| *f != 0);
+    let english_flg = row.get_value(9)?;
+    let english_flg = english_flg.as_integer().map(|f| *f != 0);
+
+    let episode = AnalyzedEpisode {
+        program_id: *program_id,
+        program_title: program_title.to_string(),
+        episode_id: *episode_id,
+        episode_title,
+        schedule: schedule.with_timezone(&Local),
+        period,
+        suspend_flg: *suspend_flg != 0,
+        rebroadcast_flg,
+        bilingual_flg,
+        english_flg,
+    };
+
+    Ok(episode)
+}
+
 pub(crate) async fn get_current_episodes(
     connection: Connection,
     after: String,
@@ -20,33 +62,8 @@ pub(crate) async fn get_current_episodes(
     let mut rows = connection
         .query(include_str!("../db/get_current_episode.sql"), [after])
         .await?;
-    let error = Error::Database("Failed to load episode".to_string());
     if let Some(row) = rows.next().await? {
-        let program_id = row.get_value(0)?;
-        let program_id = program_id.as_integer().ok_or(error.clone())?;
-        let program_title = row.get_value(1)?;
-        let program_title = program_title.as_text().ok_or(error.clone())?;
-        let episode_id = row.get_value(2)?;
-        let episode_id = episode_id.as_integer().ok_or(error.clone())?;
-
-        let suspend_flg = row.get_value(4)?;
-        let suspend_flg = suspend_flg.as_integer().ok_or(error.clone())?;
-        let schedule = row.get_value(5)?;
-        let schedule = schedule.as_text().ok_or(error.clone())?;
-        let period = row.get_value(6)?;
-        let period = period.as_integer().ok_or(error.clone())?;
-        let schedule = DateTime::parse_from_str(schedule, "%Y-%m-%d %H:%M:%S %:z")?;
-        let period = TimeDelta::seconds(*period);
-        // TODO iml every element
-        let episode = AnalyzedEpisode {
-            program_id: *program_id,
-            program_title: program_title.to_string(),
-            episode_id: *episode_id,
-            schedule: schedule.with_timezone(&Local),
-            period,
-            suspend_flg: *suspend_flg != 0,
-            ..Default::default()
-        };
+        let episode = row_to_episode(row)?;
         return Ok(Some(episode));
     }
 
@@ -61,37 +78,8 @@ pub(crate) async fn get_episodes(
         .query(include_str!("../db/get_episode.sql"), [after])
         .await?;
     let mut episodes = Vec::new();
-    let error = Error::Database("Failed to load episode".to_string());
     while let Some(row) = rows.next().await? {
-        let program_id = row.get_value(0)?;
-        let program_id = program_id.as_integer().ok_or(error.clone())?;
-        let program_title = row.get_value(1)?;
-        let program_title = program_title.as_text().ok_or(error.clone())?;
-        let episode_id = row.get_value(2)?;
-        let episode_id = episode_id.as_integer().ok_or(error.clone())?;
-
-        let episode_title = row.get_value(3)?;
-        let episode_title = episode_title.as_text().map(|e| e.to_string());
-
-        let suspend_flg = row.get_value(4)?;
-        let suspend_flg = suspend_flg.as_integer().ok_or(error.clone())?;
-        let schedule = row.get_value(5)?;
-        let schedule = schedule.as_text().ok_or(error.clone())?;
-        let period = row.get_value(6)?;
-        let period = period.as_integer().ok_or(error.clone())?;
-        let schedule = DateTime::parse_from_str(schedule, "%Y-%m-%d %H:%M:%S %:z")?;
-        let period = TimeDelta::seconds(*period);
-        // TODO iml every element
-        let episode = AnalyzedEpisode {
-            program_id: *program_id,
-            program_title: program_title.to_string(),
-            episode_id: *episode_id,
-            episode_title,
-            schedule: schedule.with_timezone(&Local),
-            period,
-            suspend_flg: *suspend_flg != 0,
-            ..Default::default()
-        };
+        let episode = row_to_episode(row)?;
         episodes.push(episode);
     }
 
