@@ -43,7 +43,7 @@ pub(crate) async fn get_current_episodes(
             program_title: program_title.to_string(),
             episode_id: *episode_id,
             schedule: schedule.with_timezone(&Local),
-            period: period,
+            period,
             suspend_flg: *suspend_flg != 0,
             ..Default::default()
         };
@@ -86,9 +86,9 @@ pub(crate) async fn get_episodes(
             program_id: *program_id,
             program_title: program_title.to_string(),
             episode_id: *episode_id,
-            episode_title: episode_title,
+            episode_title,
             schedule: schedule.with_timezone(&Local),
-            period: period,
+            period,
             suspend_flg: *suspend_flg != 0,
             ..Default::default()
         };

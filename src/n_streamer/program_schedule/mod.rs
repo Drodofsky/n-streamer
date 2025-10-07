@@ -69,9 +69,6 @@ impl ProgramSchedule {
             });
         scrollable(episodes.padding(PADDING).width(Fill)).into()
     }
-    pub fn schedule(&self) -> &[AnalyzedEpisode] {
-        &self.episodes
-    }
     pub fn set_connectoin(&mut self, connection: Connection) {
         self.connection = Some(connection);
     }

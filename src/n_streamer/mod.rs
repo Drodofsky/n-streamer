@@ -38,7 +38,7 @@ impl Default for NStreamer {
     fn default() -> Self {
         Self {
             theme: iced::Theme::Dark,
-            settings: Settings::default(),
+            settings: Settings,
             time: Time::default(),
             user_interaction: None,
             life_stream: LiveStream::default(),
