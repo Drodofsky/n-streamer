@@ -25,11 +25,6 @@ impl NStreamer {
                     }
                 });
 
-                /*  if let Some(db) = &self.db {
-                    let connection = db.connect();
-                     tasks.push( Task::perform(get_episodes(connection), Message::LoadedEpisodes));
-                }*/
-
                 Task::batch(tasks)
             }
             Message::LongTick => {
