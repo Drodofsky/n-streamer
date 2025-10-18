@@ -5,9 +5,9 @@ pub mod title;
 use chrono::Local;
 use iced::{
     Element,
-    Length::Fill,
+    Length::{self, Fill},
     Task, Theme,
-    widget::{self, Column, mouse_area, row, scrollable, space, text},
+    widget::{self, Column, column, mouse_area, row, scrollable, space, text},
 };
 use turso::Connection;
 
@@ -19,7 +19,7 @@ use crate::n_streamer::{
         analyzed_schedule::{AnalyzedEpisode, AnalyzedSchedule},
         parsed_schedule::ScheduleRequest,
     },
-    ui_utils::{PADDING, SPACING},
+    ui_utils::{PADDING, SPACING, fmt_period},
 };
 
 #[derive(Debug, Default)]
@@ -31,6 +31,45 @@ pub struct ProgramSchedule {
 
 impl ProgramSchedule {
     pub fn view(&self) -> Element<'_, Message> {
+        row![self.view_scroll_list(), self.view_hovered_info()].into()
+    }
+
+    fn view_hovered_info(&self) -> Element<'_, Message> {
+        if let Some(episode) = self.episodes.get(self.hovered_episode) {
+            let mut col = column![];
+            if let Some(ep_title) = &episode.episode_title {
+                let title = format!("{} {}", episode.program_title, ep_title);
+                col = col.push(row![
+                    widget::text("Title:"),
+                    widget::space().width(Length::Fill),
+                    widget::text(title)
+                ]);
+            } else {
+                col = col.push(row![
+                    widget::text("Title:"),
+                    widget::space().width(Length::Fill),
+                    widget::text(episode.program_title.as_str())
+                ]);
+            }
+
+            col = col.push(row![
+                widget::text("Schedule:"),
+                widget::space().width(Length::Fill),
+                widget::text(episode.schedule.format("%m/%d(%a) %H:%M").to_string())
+            ]);
+            col = col.push(row![
+                widget::text("Duration:"),
+                widget::space().width(Length::Fill),
+                widget::text(fmt_period(&episode.period))
+            ]);
+
+            col.into()
+        } else {
+            column![].into()
+        }
+    }
+
+    fn view_scroll_list(&self) -> Element<'_, Message> {
         let episodes = self
             .episodes
             .iter()
