@@ -9,3 +9,4 @@ N-Stream does not bypass DRM or authentication. Using it may violate a provider'
 - download web streams
 - build a digital library
 
+![](assets/Screenshot_schedule.png)
