@@ -174,6 +174,10 @@ impl NStreamer {
                 });
                 Task::none()
             }
+            Message::Plus(_episode_view) => {
+                // TODO
+                Task::none()
+            }
         }
     }
 }

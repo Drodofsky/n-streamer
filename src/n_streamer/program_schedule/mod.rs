@@ -15,16 +15,19 @@ use iced::{
 };
 use turso::Connection;
 
-use crate::n_streamer::{
-    db::{self, EpisodeView},
-    error::Error,
-    message::Message,
-    program_schedule::{
-        analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedSchedule,
-        parsed_program_info::ProgramInfoRequest, parsed_schedule::ScheduleRequest,
+use crate::{
+    button_text,
+    n_streamer::{
+        db::{self, EpisodeView},
+        error::Error,
+        message::Message,
+        program_schedule::{
+            analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedSchedule,
+            parsed_program_info::ProgramInfoRequest, parsed_schedule::ScheduleRequest,
+        },
+        ui_utils::{PADDING, SPACING, fmt_period},
+        utils::load_image,
     },
-    ui_utils::{PADDING, SPACING, fmt_period},
-    utils::load_image,
 };
 
 #[derive(Default)]
@@ -122,6 +125,16 @@ impl ProgramSchedule {
                                     }
                                 }),
                                 space().width(Fill),
+                                button_text!(" ➕ ")
+                                    .style(move |theme, status| {
+                                        let mut style = widget::button::text(theme, status);
+                                        if self.hovered_episode == id {
+                                            style.text_color =
+                                                theme.extended_palette().background.strong.text;
+                                        }
+                                        style
+                                    })
+                                    .on_press(Message::Plus(e.clone()))
                             ]
                             .padding(PADDING)
                             .spacing(SPACING),

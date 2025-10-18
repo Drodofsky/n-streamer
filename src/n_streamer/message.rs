@@ -37,4 +37,5 @@ pub enum Message {
     ScheduleElementEntered(usize),
     CurrentEpisode(Result<Option<AnalyzedEpisode>, Error>),
     LoadImage(String, Result<Option<image::Handle>, Error>),
+    Plus(EpisodeView),
 }
