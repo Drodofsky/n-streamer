@@ -124,7 +124,11 @@ impl NStreamer {
             }
         }
     }
-    pub(crate) fn apply_result_and<T>(&mut self, res: Result<T, Error>, f: impl Fn(&mut Self, T)) {
+    pub(crate) fn apply_result_and<T>(
+        &mut self,
+        res: Result<T, Error>,
+        mut f: impl FnMut(&mut Self, T),
+    ) {
         match res {
             Ok(x) => f(self, x),
             Err(e) => {
