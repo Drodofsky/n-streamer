@@ -7,6 +7,7 @@ use turso::Database;
 use crate::n_streamer::{
     Center,
     config::{Config, Theme},
+    db::EpisodeView,
     error::Error,
     program_schedule::analyzed_schedule::AnalyzedEpisode,
     settings::SettingItem,
@@ -32,7 +33,7 @@ pub enum Message {
     DatabaseLoaded(Result<Database, Error>),
     Result(Result<(), Error>),
     DbInitialized(Result<(), Error>),
-    LoadedEpisodes(Result<Vec<AnalyzedEpisode>, Error>),
+    LoadedEpisodes(Result<Vec<EpisodeView>, Error>),
     ScheduleElementEntered(usize),
     CurrentEpisode(Result<Option<AnalyzedEpisode>, Error>),
 }

@@ -2,7 +2,7 @@ mod live_stream;
 mod message;
 mod settings;
 mod time;
-use std::time::Duration;
+use std::{collections::HashSet, num::NonZeroI64, time::Duration};
 
 mod config;
 mod db;
@@ -18,7 +18,7 @@ use crate::n_streamer::{
     live_stream::LiveStream,
     program_schedule::{ProgramSchedule, title::Title},
 };
-use iced::{Subscription, Task, window};
+use iced::{Subscription, Task, futures::future::join_all, window};
 
 use message::Message;
 use turso::{Builder, Connection, Database};
@@ -106,8 +106,20 @@ pub enum Center {
 }
 
 async fn download_schedule(connection: Result<Connection, turso::Error>) -> Result<(), Error> {
+    let connection = connection?;
     let schedule = ProgramSchedule::get_analyzed_schedule().await?;
-    db::add_episodes(connection, schedule.episodes).await?;
 
+    let ids: HashSet<NonZeroI64> = schedule
+        .episodes
+        .iter()
+        .filter_map(|e| NonZeroI64::new(e.program_id))
+        .collect();
+    let program_info_futures = ids
+        .iter()
+        .map(|id| ProgramSchedule::get_analyzed_program_info(*id));
+    let programs = join_all(program_info_futures).await;
+
+    db::add_episodes(connection.clone(), schedule.episodes).await?;
+    db::add_programs(connection, programs).await?;
     Ok(())
 }

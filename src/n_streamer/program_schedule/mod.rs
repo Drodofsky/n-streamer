@@ -1,6 +1,10 @@
+pub mod analyzed_program_info;
 pub mod analyzed_schedule;
-pub mod parsed_schedule;
+mod parsed_program_info;
+mod parsed_schedule;
 pub mod title;
+
+use std::num::NonZeroI64;
 
 use chrono::Local;
 use iced::{
@@ -12,12 +16,12 @@ use iced::{
 use turso::Connection;
 
 use crate::n_streamer::{
-    db,
+    db::{self, EpisodeView},
     error::Error,
     message::Message,
     program_schedule::{
-        analyzed_schedule::{AnalyzedEpisode, AnalyzedSchedule},
-        parsed_schedule::ScheduleRequest,
+        analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedSchedule,
+        parsed_program_info::ProgramInfoRequest, parsed_schedule::ScheduleRequest,
     },
     ui_utils::{PADDING, SPACING, fmt_period},
 };
@@ -25,7 +29,7 @@ use crate::n_streamer::{
 #[derive(Debug, Default)]
 pub struct ProgramSchedule {
     hovered_episode: usize,
-    episodes: Vec<AnalyzedEpisode>,
+    episodes: Vec<EpisodeView>,
     connection: Option<Connection>,
 }
 
@@ -62,6 +66,20 @@ impl ProgramSchedule {
                 widget::space().width(Length::Fill),
                 widget::text(fmt_period(&episode.period))
             ]);
+            if let Some(genre) = &episode.genre {
+                col = col.push(row![
+                    widget::text("Genre:"),
+                    widget::space().width(Length::Fill),
+                    widget::text(genre)
+                ]);
+            }
+            if let Some(synopsis) = &episode.synopsis {
+                col = col.push(row![
+                    widget::text("Synopsis:"),
+                    widget::space().width(Length::Fill),
+                    widget::text(synopsis)
+                ]);
+            }
 
             col.padding(PADDING).spacing(SPACING).into()
         } else {
@@ -111,7 +129,7 @@ impl ProgramSchedule {
     pub fn set_connectoin(&mut self, connection: Connection) {
         self.connection = Some(connection);
     }
-    pub fn set_schedule(&mut self, episodes: Vec<AnalyzedEpisode>) {
+    pub fn set_schedule(&mut self, episodes: Vec<EpisodeView>) {
         self.episodes = episodes;
     }
 
@@ -128,7 +146,7 @@ impl ProgramSchedule {
             let time = Local::now().to_string();
 
             let get_episodes_task = Task::perform(
-                db::get_episodes(connection.clone(), time),
+                db::get_episode_views(connection.clone(), time),
                 Message::LoadedEpisodes,
             );
 
@@ -148,5 +166,20 @@ impl ProgramSchedule {
             return Err(Error::Api(format!("API: {}", json.status)));
         }
         json.item.try_into()
+    }
+
+    pub async fn get_analyzed_program_info(id: NonZeroI64) -> Result<AnalyzedProgramInfo, Error> {
+        let json: ProgramInfoRequest = reqwest::get(format!(
+            "https://nhkworldpremium.com/backend/api/v1/front/program/{id}?lang=en"
+        ))
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+        if json.status != 400 {
+            return Err(Error::Api(format!("API: {}", json.status)));
+        }
+        Ok(json.item.into())
     }
 }
