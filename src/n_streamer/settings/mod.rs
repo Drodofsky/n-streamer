@@ -77,11 +77,17 @@ impl NStreamer {
                 None => Message::Tick,
             }),
             SettingItem::Locations => {
-                self.user_interaction = Some(Box::new(|s| s.view_locations_popup()));
+                self.add_user_interaction(
+                    Box::new(|s| s.view_locations_popup()),
+                    super::Priority::Task,
+                );
                 Task::none()
             }
             SettingItem::Theme => {
-                self.user_interaction = Some(Box::new(|s| s.view_theme_popup()));
+                self.add_user_interaction(
+                    Box::new(|s| s.view_theme_popup()),
+                    super::Priority::Task,
+                );
                 Task::none()
             }
         }

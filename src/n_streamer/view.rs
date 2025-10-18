@@ -14,7 +14,7 @@ use iced::{
 };
 impl NStreamer {
     pub fn view(&self) -> Element<'_, Message> {
-        if let Some(interaction) = &self.user_interaction {
+        if let Some(interaction) = &self.get_top_user_interaction() {
             let mut col = column![];
             col = col.push(self.view_top());
             col = col.push(interaction(self));

@@ -56,12 +56,15 @@ impl NStreamer {
                 Task::none()
             }
             Message::ExitRequest(id) => {
-                self.user_interaction = Some(Box::new(move |s| s.view_exit_popup(id)));
+                self.add_user_interaction(
+                    Box::new(move |s| s.view_exit_popup(id)),
+                    super::Priority::Exit,
+                );
                 Task::none()
             }
             Message::Exit(id) => window::close(id),
             Message::ClosePopUp => {
-                self.user_interaction = None;
+                self.close_user_interaction();
                 Task::none()
             }
             Message::SettingSelected(m) => self.apply_settings_menu(m),
@@ -71,23 +74,26 @@ impl NStreamer {
                 Task::none()
             }
             Message::MenuButtonPressed(Center::LiveStream) => {
-                self.user_interaction = None;
+                self.clear_user_interaction();
 
                 if let Some(url) = self.config.stream_url() {
                     self.center = Center::LiveStream;
 
                     self.life_stream.live_stream_button_pressed(url)
                 } else {
-                    self.user_interaction = Some(Box::new(|s| {
-                        s.view_error_popup(
-                            "Please configure a streaming url in settings.".to_string(),
-                        )
-                    }));
+                    self.add_user_interaction(
+                        Box::new(|s| {
+                            s.view_error_popup(
+                                "Please configure a streaming url in settings.".to_string(),
+                            )
+                        }),
+                        super::Priority::Error,
+                    );
                     Task::none()
                 }
             }
             Message::MenuButtonPressed(c) => {
-                self.user_interaction = None;
+                self.clear_user_interaction();
                 self.center = c;
                 Task::none()
             }
@@ -133,7 +139,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::UpdateTheme(theme) => {
-                self.user_interaction = None;
+                self.close_user_interaction();
                 let t1 = self.config.set_theme(theme);
 
                 let t2 = self.update_theme();
@@ -165,7 +171,7 @@ impl NStreamer {
                 Task::perform(Settings::browse_media_path(), Message::MaybeNewMediaPath)
             }
             Message::SaveAndClosePopup => {
-                self.user_interaction = None;
+                self.close_user_interaction();
                 Task::perform(Config::save(self.config.clone()), Message::Result)
             }
             Message::LoadImage(url, image) => {
@@ -175,7 +181,10 @@ impl NStreamer {
                 Task::none()
             }
             Message::Plus(_episode_view) => {
-                self.user_interaction = Some(Box::new(move |s| s.view_download_popup()));
+                self.add_user_interaction(
+                    Box::new(move |s| s.view_download_popup()),
+                    super::Priority::Task,
+                );
                 Task::none()
             }
         }

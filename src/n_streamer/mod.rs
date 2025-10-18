@@ -33,7 +33,7 @@ pub struct NStreamer {
     time: Time,
     theme: iced::Theme,
     title: Title,
-    user_interaction: Option<DynView<Self, Message>>,
+    user_interactions: Vec<UserInteraction>,
     life_stream: LiveStream,
     center: Center,
     program_schedule: ProgramSchedule,
@@ -48,7 +48,7 @@ impl Default for NStreamer {
             settings: Settings,
             time: Time::default(),
             title: Title::default(),
-            user_interaction: None,
+            user_interactions: Vec::new(),
             life_stream: LiveStream::default(),
             center: Center::default(),
             program_schedule: ProgramSchedule::default(),
@@ -82,6 +82,23 @@ impl NStreamer {
     }
     fn set_config(&mut self, config: Config) {
         self.config = config;
+    }
+    fn get_top_user_interaction(&self) -> Option<&DynView<Self, Message>> {
+        self.user_interactions.iter().last().map(|u| &u.view)
+    }
+    fn add_user_interaction(&mut self, interaction: DynView<Self, Message>, priority: Priority) {
+        self.user_interactions.push(UserInteraction {
+            view: interaction,
+            priority,
+        });
+        self.user_interactions.sort();
+    }
+    fn close_user_interaction(&mut self) {
+        self.user_interactions
+            .remove(self.user_interactions.len() - 1);
+    }
+    fn clear_user_interaction(&mut self) {
+        self.user_interactions.clear();
     }
 
     async fn init_db(config: Config) -> Result<Database, Error> {
@@ -136,4 +153,37 @@ async fn download_schedule(
     db::add_episodes(connection.clone(), schedule.episodes).await?;
     db::add_programs(connection, programs).await?;
     Ok(())
+}
+
+pub struct UserInteraction {
+    view: DynView<NStreamer, Message>,
+    priority: Priority,
+}
+
+impl PartialEq for UserInteraction {
+    fn eq(&self, other: &Self) -> bool {
+        self.priority.eq(&other.priority)
+    }
+}
+impl Eq for UserInteraction {}
+
+impl PartialOrd for UserInteraction {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.priority.partial_cmp(&other.priority)
+    }
+}
+
+impl Ord for UserInteraction {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.priority.cmp(&other.priority)
+    }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub enum Priority {
+    Exit = 16,
+    Error = 8,
+    Warn = 4,
+    Task = 2,
+    Info = 1,
 }
