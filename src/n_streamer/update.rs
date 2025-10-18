@@ -11,7 +11,9 @@ impl NStreamer {
             Message::Tick => {
                 let mut tasks = Vec::new();
                 self.time.update();
-                let res = self.program_schedule.update();
+                let res = self
+                    .program_schedule
+                    .update(self.config.media_path().map(|p| p.to_path_buf()));
                 self.apply_result_and(res, |_, t| {
                     if let Some(t) = t {
                         tasks.push(t);
@@ -30,7 +32,13 @@ impl NStreamer {
             Message::LongTick => {
                 if let Some(db) = &self.db {
                     let connection = db.connect();
-                    Task::perform(download_schedule(connection), Message::Result)
+                    Task::perform(
+                        download_schedule(
+                            connection,
+                            self.config.media_path().map(|p| p.to_path_buf()),
+                        ),
+                        Message::Result,
+                    )
                 } else {
                     Task::none()
                 }
@@ -101,7 +109,13 @@ impl NStreamer {
                     let connection2 = db.connect();
 
                     Task::perform(db::init_db(connection1), Message::DbInitialized).chain(
-                        Task::perform(download_schedule(connection2), Message::Result),
+                        Task::perform(
+                            download_schedule(
+                                connection2,
+                                self.config.media_path().map(|p| p.to_path_buf()),
+                            ),
+                            Message::Result,
+                        ),
                     )
                 } else {
                     Task::none()
@@ -153,6 +167,12 @@ impl NStreamer {
             Message::SaveAndClosePopup => {
                 self.user_interaction = None;
                 Task::perform(Config::save(self.config.clone()), Message::Result)
+            }
+            Message::LoadImage(url, image) => {
+                self.apply_result_and(image, |s, image| {
+                    s.program_schedule.add_image(url.clone(), image)
+                });
+                Task::none()
             }
         }
     }

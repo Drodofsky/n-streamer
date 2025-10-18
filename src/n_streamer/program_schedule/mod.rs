@@ -4,14 +4,14 @@ mod parsed_program_info;
 mod parsed_schedule;
 pub mod title;
 
-use std::num::NonZeroI64;
+use std::{collections::HashMap, num::NonZeroI64, path::PathBuf};
 
 use chrono::Local;
 use iced::{
     Element,
     Length::{self, Fill},
     Task, Theme,
-    widget::{self, Column, column, mouse_area, row, scrollable, space, text},
+    widget::{self, Column, Image, column, image, mouse_area, row, scrollable, space, text},
 };
 use turso::Connection;
 
@@ -24,13 +24,16 @@ use crate::n_streamer::{
         parsed_program_info::ProgramInfoRequest, parsed_schedule::ScheduleRequest,
     },
     ui_utils::{PADDING, SPACING, fmt_period},
+    utils::load_image,
 };
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct ProgramSchedule {
     hovered_episode: usize,
     episodes: Vec<EpisodeView>,
     connection: Option<Connection>,
+    images: HashMap<String, Option<image::Handle>>,
+    image_is_loading: bool,
 }
 
 impl ProgramSchedule {
@@ -73,6 +76,17 @@ impl ProgramSchedule {
                     widget::text(genre)
                 ]);
             }
+
+            if let Some(url) = &episode.logo_link
+                && let Some(image) = self.images.get(url).and_then(|s| s.as_ref())
+            {
+                col = col.push(row![
+                    space().width(Length::Fill),
+                    Image::new(image),
+                    space().width(Length::Fill)
+                ])
+            }
+
             if let Some(synopsis) = &episode.synopsis {
                 col = col.push(row![
                     widget::text("Synopsis:"),
@@ -136,10 +150,28 @@ impl ProgramSchedule {
     pub fn set_hovered_episode(&mut self, id: usize) {
         self.hovered_episode = id;
     }
+    pub fn add_image(&mut self, url: String, image: Option<image::Handle>) {
+        self.images.insert(url, image);
+        self.image_is_loading = false;
+    }
 
-    pub fn update(&mut self) -> Result<Option<Task<Message>>, Error> {
+    pub fn update(&mut self, base_path: Option<PathBuf>) -> Result<Option<Task<Message>>, Error> {
         if !self.episodes.is_empty() {
-            return Ok(None);
+            if self.image_is_loading {
+                return Ok(None);
+            }
+
+            if let Some(e) = self.episodes.get(self.hovered_episode)
+                && let Some(url) = &e.logo_link
+                && !self.images.contains_key(url)
+            {
+                let url = url.to_owned();
+                let task = Task::perform(load_image(url.clone(), base_path.clone()), move |res| {
+                    Message::LoadImage(url.to_string(), res)
+                });
+                self.image_is_loading = true;
+                return Ok(Some(task));
+            }
         }
 
         if let Some(connection) = self.connection.clone() {

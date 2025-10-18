@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use iced::window::Id;
+use iced::{widget::image, window::Id};
 use iced_video_player::Video;
 use turso::Database;
 
@@ -36,4 +36,5 @@ pub enum Message {
     LoadedEpisodes(Result<Vec<EpisodeView>, Error>),
     ScheduleElementEntered(usize),
     CurrentEpisode(Result<Option<AnalyzedEpisode>, Error>),
+    LoadImage(String, Result<Option<image::Handle>, Error>),
 }

@@ -2,7 +2,7 @@ mod live_stream;
 mod message;
 mod settings;
 mod time;
-use std::{collections::HashSet, num::NonZeroI64, time::Duration};
+use std::{collections::HashSet, num::NonZeroI64, path::PathBuf, time::Duration};
 
 mod config;
 mod db;
@@ -17,6 +17,7 @@ use crate::n_streamer::{
     error::Error,
     live_stream::LiveStream,
     program_schedule::{ProgramSchedule, title::Title},
+    utils::download_image_if_not_exists,
 };
 use iced::{Subscription, Task, futures::future::join_all, window};
 
@@ -105,7 +106,10 @@ pub enum Center {
     Library,
 }
 
-async fn download_schedule(connection: Result<Connection, turso::Error>) -> Result<(), Error> {
+async fn download_schedule(
+    connection: Result<Connection, turso::Error>,
+    base_path: Option<PathBuf>,
+) -> Result<(), Error> {
     let connection = connection?;
     let schedule = ProgramSchedule::get_analyzed_schedule().await?;
 
@@ -118,6 +122,14 @@ async fn download_schedule(connection: Result<Connection, turso::Error>) -> Resu
         .iter()
         .map(|id| ProgramSchedule::get_analyzed_program_info(*id));
     let programs = join_all(program_info_futures).await;
+    let download_images = programs
+        .iter()
+        .filter_map(|p| p.as_ref().ok())
+        .filter_map(|p| p.logo_link.as_ref())
+        .map(|l| download_image_if_not_exists(l, base_path.clone()));
+    for res in join_all(download_images).await.iter() {
+        res.clone()?;
+    }
 
     db::add_episodes(connection.clone(), schedule.episodes).await?;
     db::add_programs(connection, programs).await?;
