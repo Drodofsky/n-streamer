@@ -217,11 +217,9 @@ impl ProgramSchedule {
         let json: ProgramInfoRequest = reqwest::get(format!(
             "https://nhkworldpremium.com/backend/api/v1/front/program/{id}?lang=en"
         ))
-        .await
-        .unwrap()
+        .await?
         .json()
-        .await
-        .unwrap();
+        .await?;
         if json.status != 400 {
             return Err(Error::Api(format!("API: {}", json.status)));
         }

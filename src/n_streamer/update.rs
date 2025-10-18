@@ -175,7 +175,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::Plus(_episode_view) => {
-                self.user_interaction =  Some(Box::new(move |s| s.view_download_popup()));
+                self.user_interaction = Some(Box::new(move |s| s.view_download_popup()));
                 Task::none()
             }
         }

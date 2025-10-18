@@ -19,10 +19,8 @@ impl NStreamer {
         pop_up!(
             "Add episode to download queue",
             row![
-                button_text!("yes")
-                    .width(Length::FillPortion(1)),
-                button_text!("Subscribe")
-                    .width(Length::FillPortion(1)),
+                button_text!("yes").width(Length::FillPortion(1)),
+                button_text!("Subscribe").width(Length::FillPortion(1)),
                 button_text!("Close")
                     .width(FillPortion(1))
                     .on_press(Message::ClosePopUp)
