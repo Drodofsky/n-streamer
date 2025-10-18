@@ -55,7 +55,7 @@ impl ProgramSchedule {
             col = col.push(row![
                 widget::text("Schedule:"),
                 widget::space().width(Length::Fill),
-                widget::text(episode.schedule.format("%m/%d(%a) %H:%M").to_string())
+                widget::text(episode.schedule.format("%m/%d (%a) %H:%M").to_string())
             ]);
             col = col.push(row![
                 widget::text("Duration:"),
@@ -63,7 +63,7 @@ impl ProgramSchedule {
                 widget::text(fmt_period(&episode.period))
             ]);
 
-            col.into()
+            col.padding(PADDING).spacing(SPACING).into()
         } else {
             column![].into()
         }
