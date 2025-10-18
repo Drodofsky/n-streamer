@@ -13,7 +13,10 @@ mod update;
 mod utils;
 mod view;
 use crate::n_streamer::{
-    config::Config, error::Error, live_stream::LiveStream, program_schedule::ProgramSchedule,
+    config::Config,
+    error::Error,
+    live_stream::LiveStream,
+    program_schedule::{ProgramSchedule, title::Title},
 };
 use iced::{Subscription, Task, window};
 
@@ -26,6 +29,7 @@ pub struct NStreamer {
     settings: Settings,
     time: Time,
     theme: iced::Theme,
+    title: Title,
     user_interaction: Option<DynView<Self, Message>>,
     life_stream: LiveStream,
     center: Center,
@@ -40,6 +44,7 @@ impl Default for NStreamer {
             theme: iced::Theme::Dark,
             settings: Settings,
             time: Time::default(),
+            title: Title::default(),
             user_interaction: None,
             life_stream: LiveStream::default(),
             center: Center::default(),

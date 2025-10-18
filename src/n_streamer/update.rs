@@ -12,16 +12,18 @@ impl NStreamer {
                 let mut tasks = Vec::new();
                 self.time.update();
                 let res = self.program_schedule.update();
-                match res {
-                    Ok(t) => {
-                        if let Some(task) = t {
-                            tasks.push(task);
-                        }
+                self.apply_result_and(res, |_, t| {
+                    if let Some(t) = t {
+                        tasks.push(t);
                     }
-                    Err(e) => {
-                        self.apply_result::<()>(Err(e));
+                });
+
+                let res = self.title.update();
+                self.apply_result_and(res, |_, t| {
+                    if let Some(t) = t {
+                        tasks.push(t);
                     }
-                }
+                });
 
                 /*  if let Some(db) = &self.db {
                     let connection = db.connect();
@@ -47,7 +49,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::CurrentEpisode(e) => {
-                self.apply_result_and(e, |s, e| s.program_schedule.set_current_episode(e));
+                self.apply_result_and(e, |s, e| s.title.set_current_episode(e));
                 Task::none()
             }
             Message::ExitRequest(id) => {
@@ -115,7 +117,8 @@ impl NStreamer {
                 if let Some(db) = &self.db {
                     let connection = db.connect().map_err(|e| e.into());
                     self.apply_result_and(connection, |s, con| {
-                        s.program_schedule.set_connectoin(con)
+                        s.program_schedule.set_connectoin(con.clone());
+                        s.title.set_connectoin(con);
                     });
                 }
                 Task::none()

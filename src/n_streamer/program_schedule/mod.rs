@@ -1,5 +1,6 @@
 pub mod analyzed_schedule;
 pub mod parsed_schedule;
+pub mod title;
 
 use chrono::Local;
 use iced::{
@@ -24,7 +25,6 @@ use crate::n_streamer::{
 #[derive(Debug, Default)]
 pub struct ProgramSchedule {
     hovered_episode: usize,
-    current_episode: Option<AnalyzedEpisode>,
     episodes: Vec<AnalyzedEpisode>,
     connection: Option<Connection>,
 }
@@ -75,43 +75,25 @@ impl ProgramSchedule {
     pub fn set_schedule(&mut self, episodes: Vec<AnalyzedEpisode>) {
         self.episodes = episodes;
     }
-    pub fn get_current_episode(&self) -> Option<&str> {
-        self.current_episode
-            .as_ref()
-            .map(|e| e.program_title.as_str())
-    }
-    pub fn set_current_episode(&mut self, episode: Option<AnalyzedEpisode>) {
-        self.current_episode = episode;
-    }
+
     pub fn set_hovered_episode(&mut self, id: usize) {
         self.hovered_episode = id;
     }
 
     pub fn update(&mut self) -> Result<Option<Task<Message>>, Error> {
-        if let Some(ce) = &self.current_episode {
-            let now = Local::now();
-            if now
-                < ce.schedule
-                    .checked_add_signed(ce.period)
-                    .ok_or(Error::Chrono("failed to calculate time offset".to_string()))?
-            {
-                return Ok(None);
-            }
+        if !self.episodes.is_empty() {
+            return Ok(None);
         }
+
         if let Some(connection) = self.connection.clone() {
             let time = Local::now().to_string();
-
-            let current_episode_task = Task::perform(
-                db::get_current_episodes(connection.clone(), time.clone()),
-                Message::CurrentEpisode,
-            );
 
             let get_episodes_task = Task::perform(
                 db::get_episodes(connection.clone(), time),
                 Message::LoadedEpisodes,
             );
 
-            Ok(Some(current_episode_task.chain(get_episodes_task)))
+            Ok(Some(get_episodes_task))
         } else {
             Ok(None)
         }

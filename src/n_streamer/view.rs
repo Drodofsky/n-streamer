@@ -23,7 +23,7 @@ impl NStreamer {
         column![self.view_top(), self.view_center()].into()
     }
     fn view_current_program(&self) -> Element<'_, Message> {
-        self.program_schedule
+        self.title
             .get_current_episode()
             .map(|e| primary_text!(e))
             .unwrap_or(primary_text!(""))
