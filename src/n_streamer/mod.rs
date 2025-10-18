@@ -12,6 +12,8 @@ mod ui_utils;
 mod update;
 mod utils;
 mod view;
+mod download;
+
 use crate::n_streamer::{
     config::Config,
     error::Error,
