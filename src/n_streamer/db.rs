@@ -30,6 +30,12 @@ pub(crate) async fn init_db(connection: Result<Connection, turso::Error>) -> Res
     connection
         .execute(include_str!("../db/create_table_program.sql"), ())
         .await?;
+    connection
+        .execute(include_str!("../db/create_table_downloading.sql"), ())
+        .await?;
+    connection
+        .execute(include_str!("../db/create_table_downloaded.sql"), ())
+        .await?;
 
     Ok(())
 }
