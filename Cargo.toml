@@ -4,16 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-iced = {git="https://github.com/iced-rs/iced.git", features = ["tokio"]}
+iced = {version = "0.14", features = ["tokio"]}
 chrono = {version = "^0.4",features = ["serde"]}
 chrono-tz = "^0.10"
 tokio = {version = "^1.40",features = ["process","fs"]}
-iced_video_player = {git="https://github.com/Drodofsky/iced_video_player.git",branch = "0.14-dev"}
+iced_video_player = {git="https://github.com/jazzfool/iced_video_player.git",branch = "master"}
 url = "^2.5"
 directories = "6.0.0"
 toml = "0.9.7"
-rfd = "0.15.4"
-turso = "0.2.1"
+rfd = "0.16.0"
+turso = "0.3.2"
 # Fixes turso on some platforms
 aegis = {version = "0.9", features = ["pure-rust"]}
 serde_json = "1.0.145"
