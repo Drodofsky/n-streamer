@@ -21,6 +21,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y pkg-config libglib2.0-dev
         sudo apt-get install -y gstreamer1.0-*
+        sudo apt-get install -y libgstreamer1.0-*
+        sudo apt-get install -y libgstreamer-plugins-*
     - name: Build
       run: cargo build --verbose
     - name: Run tests
