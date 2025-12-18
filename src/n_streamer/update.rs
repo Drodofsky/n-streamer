@@ -27,7 +27,7 @@ impl NStreamer {
                 });
                 let res = self.downloads.update();
                 self.apply_result_and(res, |_, t| {
-                        tasks.push(t);
+                    tasks.push(t);
                 });
 
                 let res = self.title.update();
@@ -228,10 +228,10 @@ impl NStreamer {
                 self.apply_result_and(e, |s, e| s.downloads.set_download_queue(e));
                 Task::none()
             }
-                Message::RemoveEpisodeFromDownloadQueue(episode_id) => {
+            Message::RemoveEpisodeFromDownloadQueue(episode_id) => {
                 let connection = self.db.as_ref().unwrap().connect();
                 self.close_user_interaction();
-                 Task::perform(
+                Task::perform(
                     remove_episode_from_download_queue(connection, episode_id),
                     Message::Result,
                 )

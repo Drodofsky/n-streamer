@@ -103,7 +103,7 @@ impl ProgramSchedule {
             &self.episodes,
             self.hovered_episode,
             ScrollListOwner::ProgramSchedule,
-            " ➕ "
+            " ➕ ",
         )
         .into()
     }

@@ -34,7 +34,7 @@ impl Downloads {
             &self.download_queue,
             self.hovered_episode,
             ScrollListOwner::DownloadQueue,
-            " ➖ "
+            " ➖ ",
         )
         .into()
     }
@@ -138,7 +138,9 @@ impl NStreamer {
         pop_up!(
             "Remove episode from download queue",
             row![
-                button_text!("yes").width(Length::FillPortion(1)).on_press(Message::RemoveEpisodeFromDownloadQueue(episode_view.into())),
+                button_text!("yes")
+                    .width(Length::FillPortion(1))
+                    .on_press(Message::RemoveEpisodeFromDownloadQueue(episode_view.into())),
                 button_text!("no")
                     .width(FillPortion(1))
                     .on_press(Message::ClosePopUp)
