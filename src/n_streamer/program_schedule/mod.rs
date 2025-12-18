@@ -8,26 +8,21 @@ use std::{collections::HashMap, num::NonZeroI64, path::PathBuf};
 
 use chrono::Local;
 use iced::{
-    Element,
-    Length::{self, Fill},
-    Task, Theme,
-    widget::{self, Column, Image, column, image, mouse_area, row, scrollable, space, text},
+    Element, Length, Task,
+    widget::{self, Image, column, image, row, space},
 };
 use turso::Connection;
 
-use crate::{
-    button_text,
-    n_streamer::{
-        db::{self, EpisodeView},
-        error::Error,
-        message::Message,
-        program_schedule::{
-            analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedSchedule,
-            parsed_program_info::ProgramInfoRequest, parsed_schedule::ScheduleRequest,
-        },
-        ui_utils::{PADDING, SPACING, fmt_period},
-        utils::load_image,
+use crate::n_streamer::{
+    db::{self, EpisodeView},
+    error::Error,
+    message::Message,
+    program_schedule::{
+        analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedSchedule,
+        parsed_program_info::ProgramInfoRequest, parsed_schedule::ScheduleRequest,
     },
+    ui_utils::{PADDING, SPACING, ScrollListOwner, fmt_period, view_scroll_list},
+    utils::load_image,
 };
 
 #[derive(Default)]
@@ -103,56 +98,16 @@ impl ProgramSchedule {
             column![].into()
         }
     }
-
     fn view_scroll_list(&self) -> Element<'_, Message> {
-        let episodes = self
-            .episodes
-            .iter()
-            .enumerate()
-            .fold(Column::new(), |c, (id, e)| {
-                c.push(
-                    mouse_area(
-                        widget::container(
-                            row![
-                                text(e.program_title.as_str()).style(move |theme: &Theme| {
-                                    if self.hovered_episode == id {
-                                        let mut style = widget::text::default(theme);
-                                        style.color =
-                                            Some(theme.extended_palette().background.strong.text);
-                                        style
-                                    } else {
-                                        widget::text::default(theme)
-                                    }
-                                }),
-                                space().width(Fill),
-                                button_text!(" ➕ ")
-                                    .style(move |theme, status| {
-                                        let mut style = widget::button::text(theme, status);
-                                        if self.hovered_episode == id {
-                                            style.text_color =
-                                                theme.extended_palette().background.strong.text;
-                                        }
-                                        style
-                                    })
-                                    .on_press(Message::Plus(e.clone()))
-                            ]
-                            .padding(PADDING)
-                            .spacing(SPACING),
-                        )
-                        .style(move |theme: &Theme| {
-                            if self.hovered_episode == id {
-                                widget::container::transparent(theme)
-                                    .background(theme.extended_palette().background.strong.color)
-                            } else {
-                                widget::container::transparent(theme)
-                            }
-                        }),
-                    )
-                    .on_enter(Message::ScheduleElementEntered(id)),
-                )
-            });
-        scrollable(episodes.padding(PADDING).width(Fill)).into()
+        view_scroll_list(
+            &self.episodes,
+            self.hovered_episode,
+            ScrollListOwner::ProgramSchedule,
+            " ➕ "
+        )
+        .into()
     }
+
     pub fn set_connectoin(&mut self, connection: Connection) {
         self.connection = Some(connection);
     }

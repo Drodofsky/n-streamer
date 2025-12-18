@@ -127,6 +127,18 @@ impl NStreamer {
             }
         }
     }
+      pub(crate) fn apply_result_and_defualt<T:Default>(&mut self, res: Result<T, Error>)->T {
+        match res {
+            Ok(o) => {o}
+            Err(e) => {
+                self.add_user_interaction(
+                    Box::new(move |s| s.view_error_popup(e.to_string())),
+                    super::Priority::Error,
+                );
+                T::default()
+            }
+        }
+    }
     pub(crate) fn apply_result_and<T>(
         &mut self,
         res: Result<T, Error>,

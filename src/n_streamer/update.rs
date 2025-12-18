@@ -1,7 +1,13 @@
 use iced::{Task, window};
 
 use crate::n_streamer::{
-    Center, NStreamer, config::Config, db, download_schedule, message::Message, settings::Settings,
+    Center, NStreamer,
+    config::Config,
+    db::{self, add_episode_to_download_queue, remove_episode_from_download_queue},
+    download_schedule,
+    message::Message,
+    settings::Settings,
+    ui_utils::ScrollListOwner,
     utils::get_default_media_dir,
 };
 
@@ -18,6 +24,10 @@ impl NStreamer {
                     if let Some(t) = t {
                         tasks.push(t);
                     }
+                });
+                let res = self.downloads.update();
+                self.apply_result_and(res, |_, t| {
+                        tasks.push(t);
                 });
 
                 let res = self.title.update();
@@ -47,8 +57,15 @@ impl NStreamer {
                 self.apply_result_and(e, |s, e| s.program_schedule.set_schedule(e));
                 Task::none()
             }
-            Message::ScheduleElementEntered(id) => {
-                self.program_schedule.set_hovered_episode(id);
+            Message::ListElementEntered(owner, id) => {
+                match owner {
+                    ScrollListOwner::ProgramSchedule => {
+                        self.program_schedule.set_hovered_episode(id);
+                    }
+                    ScrollListOwner::DownloadQueue => {
+                        self.downloads.set_hovered_episode(id);
+                    }
+                }
                 Task::none()
             }
             Message::CurrentEpisode(e) => {
@@ -133,6 +150,7 @@ impl NStreamer {
                     let connection = db.connect().map_err(|e| e.into());
                     self.apply_result_and(connection, |s, con| {
                         s.program_schedule.set_connectoin(con.clone());
+                        s.downloads.set_connectoin(con.clone());
                         s.title.set_connectoin(con);
                     });
                 }
@@ -180,12 +198,43 @@ impl NStreamer {
                 });
                 Task::none()
             }
-            Message::Plus(_episode_view) => {
-                self.add_user_interaction(
-                    Box::new(move |s| s.view_download_popup()),
-                    super::Priority::Task,
-                );
+            Message::Plus(owner, episode_view) => {
+                match owner {
+                    ScrollListOwner::ProgramSchedule => {
+                        self.add_user_interaction(
+                            Box::new(move |s| s.view_download_popup(&episode_view)),
+                            super::Priority::Task,
+                        );
+                    }
+                    ScrollListOwner::DownloadQueue => {
+                        self.add_user_interaction(
+                            Box::new(move |s| s.view_download_queue_popup(&episode_view)),
+                            super::Priority::Task,
+                        );
+                    }
+                }
+
                 Task::none()
+            }
+            Message::AddVideoToDownloadQueue(episode_id) => {
+                let connection = self.db.as_ref().unwrap().connect();
+                self.close_user_interaction();
+                Task::perform(
+                    add_episode_to_download_queue(connection, episode_id),
+                    Message::Result,
+                )
+            }
+            Message::LoadedDownloadQueue(e) => {
+                self.apply_result_and(e, |s, e| s.downloads.set_download_queue(e));
+                Task::none()
+            }
+                Message::RemoveEpisodeFromDownloadQueue(episode_id) => {
+                let connection = self.db.as_ref().unwrap().connect();
+                self.close_user_interaction();
+                 Task::perform(
+                    remove_episode_from_download_queue(connection, episode_id),
+                    Message::Result,
+                )
             }
         }
     }

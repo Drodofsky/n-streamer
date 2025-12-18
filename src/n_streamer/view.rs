@@ -55,6 +55,7 @@ impl NStreamer {
         let center = match self.center {
             Center::LiveStream => self.life_stream.view(),
             Center::ProgramSchedule => self.program_schedule.view(),
+            Center::Downloads => self.downloads.view(),
             _ => text("Hello World!").into(),
         };
         container(center).center(Length::Fill).into()

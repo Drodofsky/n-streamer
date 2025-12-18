@@ -6,7 +6,18 @@ use crate::n_streamer::{
     program_schedule::{
         analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedEpisode,
     },
+    ui_utils::Str,
 };
+
+impl Str for EpisodeView {
+    fn get_str(&self) -> String {
+        if let Some(ep_title) = &self.episode_title {
+            format!("{} {}", self.program_title, ep_title)
+        } else {
+            self.program_title.clone()
+        }
+    }
+}
 
 #[derive(Debug, Default, Clone)]
 pub struct EpisodeView {
@@ -19,6 +30,32 @@ pub struct EpisodeView {
     pub genre: Option<String>,
     pub logo_link: Option<String>,
     pub synopsis: Option<String>,
+}
+
+#[derive(Debug, Default, Clone, Copy)]
+pub struct EpisodeId {
+    pub program_id: i64,
+    pub episode_id: i64,
+    pub schedule: DateTime<Local>,
+}
+
+impl From<EpisodeView> for EpisodeId {
+    fn from(value: EpisodeView) -> Self {
+        EpisodeId {
+            program_id: value.program_id,
+            episode_id: value.episode_id,
+            schedule: value.schedule,
+        }
+    }
+}
+impl From<&EpisodeView> for EpisodeId {
+    fn from(value: &EpisodeView) -> Self {
+        EpisodeId {
+            program_id: value.program_id,
+            episode_id: value.episode_id,
+            schedule: value.schedule,
+        }
+    }
 }
 
 pub(crate) async fn init_db(connection: Result<Connection, turso::Error>) -> Result<(), Error> {
@@ -35,6 +72,12 @@ pub(crate) async fn init_db(connection: Result<Connection, turso::Error>) -> Res
         .await?;
     connection
         .execute(include_str!("../db/create_table_downloaded.sql"), ())
+        .await?;
+    connection
+        .execute(include_str!("../db/create_table_download_queue.sql"), ())
+        .await?;
+    connection
+        .execute(include_str!("../db/create_table_subscriptions.sql"), ())
         .await?;
 
     Ok(())
@@ -150,6 +193,60 @@ pub(crate) async fn get_episode_views(
     }
 
     Ok(episodes)
+}
+
+pub(crate) async fn get_download_queue_views(
+    connection: Connection,
+) -> Result<Vec<EpisodeView>, Error> {
+    let params: [&str; 0] = [];
+    let mut rows = connection
+        .query(include_str!("../db/get_download_queue.sql"), params)
+        .await?;
+    let mut episodes = Vec::new();
+    while let Some(row) = rows.next().await? {
+        let episode = row_to_episode_view(row)?;
+        episodes.push(episode);
+    }
+
+    Ok(episodes)
+}
+
+pub(crate) async fn add_episode_to_download_queue(
+    connection: Result<Connection, turso::Error>,
+    episode: EpisodeId,
+) -> Result<(), Error> {
+    connection?
+        .execute(
+            include_str!("../db/add_episode_to_download_queue.sql"),
+            [
+                Some(episode.program_id.to_string()),
+                Some(episode.episode_id.to_string()),
+                Some(episode.schedule.to_string()),
+            ],
+        )
+        .await?;
+
+    Ok(())
+}
+
+
+pub(crate) async fn remove_episode_from_download_queue(
+    connection: Result<Connection, turso::Error>,
+    episode: EpisodeId,
+) -> Result<(), Error> {
+    println!("remove");
+    connection?
+        .execute(
+            include_str!("../db/remove_episode_from_download_queue.sql"),
+            [
+                Some(episode.program_id.to_string()),
+                Some(episode.episode_id.to_string()),
+                Some(episode.schedule.to_string()),
+            ],
+        )
+        .await?;
+
+    Ok(())
 }
 
 pub(crate) async fn add_episodes(

@@ -16,6 +16,7 @@ mod view;
 
 use crate::n_streamer::{
     config::Config,
+    download::Downloads,
     error::Error,
     live_stream::LiveStream,
     program_schedule::{ProgramSchedule, title::Title},
@@ -37,6 +38,7 @@ pub struct NStreamer {
     life_stream: LiveStream,
     center: Center,
     program_schedule: ProgramSchedule,
+    downloads: Downloads,
     config: Config,
     db: Option<Database>,
 }
@@ -52,6 +54,7 @@ impl Default for NStreamer {
             life_stream: LiveStream::default(),
             center: Center::default(),
             program_schedule: ProgramSchedule::default(),
+            downloads: Downloads::default(),
             config: Config::default(),
             db: None,
         }

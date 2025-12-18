@@ -7,10 +7,11 @@ use turso::Database;
 use crate::n_streamer::{
     Center,
     config::{Config, Theme},
-    db::EpisodeView,
+    db::{EpisodeId, EpisodeView},
     error::Error,
     program_schedule::analyzed_schedule::AnalyzedEpisode,
     settings::SettingItem,
+    ui_utils::{ScrollListMessage, ScrollListOwner},
 };
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -34,8 +35,20 @@ pub enum Message {
     Result(Result<(), Error>),
     DbInitialized(Result<(), Error>),
     LoadedEpisodes(Result<Vec<EpisodeView>, Error>),
-    ScheduleElementEntered(usize),
+    ListElementEntered(ScrollListOwner, usize),
     CurrentEpisode(Result<Option<AnalyzedEpisode>, Error>),
     LoadImage(String, Result<Option<image::Handle>, Error>),
-    Plus(EpisodeView),
+    Plus(ScrollListOwner, EpisodeView),
+    AddVideoToDownloadQueue(EpisodeId),
+    LoadedDownloadQueue(Result<Vec<EpisodeView>, Error>),
+    RemoveEpisodeFromDownloadQueue(EpisodeId),
+}
+
+impl ScrollListMessage<EpisodeView> for Message {
+    fn plus(owner: ScrollListOwner, item: EpisodeView) -> Self {
+        Message::Plus(owner, item)
+    }
+    fn list_element_entered(owner: ScrollListOwner, id: usize) -> Self {
+        Message::ListElementEntered(owner, id)
+    }
 }
