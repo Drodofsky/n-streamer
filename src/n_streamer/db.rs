@@ -229,7 +229,6 @@ pub(crate) async fn add_episode_to_download_queue(
     Ok(())
 }
 
-
 pub(crate) async fn remove_episode_from_download_queue(
     connection: Result<Connection, turso::Error>,
     episode: EpisodeId,
@@ -297,4 +296,18 @@ pub(crate) async fn add_programs(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use turso::Builder;
+
+    use crate::n_streamer::db::init_db;
+
+    #[tokio::test]
+    async fn t_init_db() {
+        let db = Builder::new_local(":memory:").build().await.unwrap();
+        let connection = db.connect().unwrap();
+        init_db(Ok(connection)).await.unwrap();
+    }
 }
