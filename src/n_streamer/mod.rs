@@ -11,15 +11,26 @@ pub use components::*;
 pub use message::*;
 pub use ui_utils::*;
 pub use user_interactions::*;
-#[derive(Default)]
 pub struct NStreamer {
     clock: Clock,
     user_interactions: Vec<UserInteraction>,
     settings: Settings,
+    theme: iced::Theme,
 }
 
 impl NStreamer {
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl Default for NStreamer {
+    fn default() -> Self {
+        NStreamer {
+            clock: Clock::default(),
+            user_interactions: Vec::new(),
+            settings: Settings::default(),
+            theme: iced::Theme::Dark,
+        }
     }
 }

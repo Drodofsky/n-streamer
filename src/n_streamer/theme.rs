@@ -1,6 +1,6 @@
 use super::*;
 impl NStreamer {
     pub fn theme(&self) -> iced::Theme {
-        iced::theme::Theme::Light
+        self.theme.clone()
     }
 }

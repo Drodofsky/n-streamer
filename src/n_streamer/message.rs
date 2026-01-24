@@ -13,4 +13,7 @@ pub enum WindowMessage {
     ExitRequest(WindowId),
     Exit(WindowId),
     CloseUserInteraction,
+    UpdateTheme(Theme),
+    OnSystemThemeUpdate,
+    ApplyTheme(iced::Theme),
 }
