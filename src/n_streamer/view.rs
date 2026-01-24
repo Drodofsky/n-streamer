@@ -6,6 +6,12 @@ use iced::{
 use super::*;
 impl NStreamer {
     pub fn view(&self) -> Element<'_, Message> {
+        if let Some(interaction) = &self.get_top_user_interaction() {
+            let mut col = column![];
+            col = col.push(self.view_top());
+            col = col.push(interaction(self));
+            return col.into();
+        }
         column![self.view_top(), self.view_center()].into()
     }
     fn view_top(&self) -> Element<'_, Message> {

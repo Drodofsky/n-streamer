@@ -1,4 +1,5 @@
-use super::*;
+mod window;
+pub use super::*;
 use iced::Task;
 
 impl NStreamer {
@@ -8,6 +9,7 @@ impl NStreamer {
                 self.clock.update();
                 Task::none()
             }
+            Message::Window(wm) => self.update_window(wm),
         }
     }
 }
