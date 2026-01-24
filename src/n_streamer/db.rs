@@ -300,14 +300,91 @@ pub(crate) async fn add_programs(
 
 #[cfg(test)]
 mod tests {
-    use turso::Builder;
+    use chrono::{Days, Local};
+    use iced::advanced::graphics::text::paragraph;
+    use turso::{Builder, Database};
 
-    use crate::n_streamer::db::init_db;
+    use crate::n_streamer::{
+        db::{
+            add_episodes, add_programs, get_episode_views, init_db, row_to_episode,
+            row_to_episode_view,
+        },
+        error::Error,
+        program_schedule::{
+            analyzed_program_info::AnalyzedProgramInfo, analyzed_schedule::AnalyzedEpisode,
+        },
+    };
 
-    #[tokio::test]
-    async fn t_init_db() {
+    fn create_some_episodes() -> Vec<AnalyzedEpisode> {
+        let mut episodes = vec![AnalyzedEpisode::default(); 5];
+        for (id, e) in episodes.iter_mut().enumerate() {
+            e.program_id = id as i64;
+            e.episode_id = (id * 100) as i64;
+            e.program_title = format!("Program({id})");
+            e.schedule = Local::now().checked_add_days(Days::new(id as u64)).unwrap();
+        }
+
+        episodes
+    }
+    fn create_some_programs() -> Vec<Result<AnalyzedProgramInfo, Error>> {
+        let mut episodes = vec![AnalyzedProgramInfo::default(); 5];
+        for (id, e) in episodes.iter_mut().enumerate() {
+            e.program_master_id = id as i64;
+            e.program_name = format!("Program({id})");
+            e.synopsis = Some(format!("all about ({id})"));
+        }
+
+        episodes.into_iter().map(|p| Ok(p)).collect()
+    }
+
+    async fn init() -> Database {
         let db = Builder::new_local(":memory:").build().await.unwrap();
         let connection = db.connect().unwrap();
         init_db(Ok(connection)).await.unwrap();
+        db
+    }
+
+    #[tokio::test]
+    async fn create_tables() {
+        init().await;
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn test_episodes() {
+        let sql = "SELECT e.program_id,
+ e.program_title, 
+ e.episode_id, 
+ e.episode_title, 
+ e.schedule, 
+ e.period, 
+ p.genre, 
+ p.logo_link, 
+ p.synopsis
+FROM episode e
+JOIN program p
+ON e.program_id = p.id
+WHERE e.suspend_flg = 0
+
+ORDER BY e.schedule ASC;";
+
+        let params: [&str; 0] = [];
+        let db = init().await;
+        let connection = db.connect().unwrap();
+        let episodes = create_some_episodes();
+        let programs = create_some_programs();
+        let mut result = Vec::new();
+        add_episodes(connection.clone(), episodes.clone())
+            .await
+            .unwrap();
+        add_programs(connection.clone(), programs).await.unwrap();
+        // let views = get_episode_views(connection, episodes[3].schedule.to_rfc2822()).await.unwrap();
+        let mut rows = connection.query(sql, params).await.unwrap();
+        while let Some(row) = rows.next().await.unwrap() {
+            let episode = row_to_episode_view(row).unwrap();
+            result.push(episode);
+        }
+
+        assert_eq!(result.len(), 5);
     }
 }
