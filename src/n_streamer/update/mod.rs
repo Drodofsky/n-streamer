@@ -10,6 +10,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::Window(wm) => self.update_window(wm),
+            Message::SettingSelected(setting) => self.settings.update(setting),
         }
     }
 }

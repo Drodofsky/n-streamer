@@ -15,6 +15,7 @@ pub use user_interactions::*;
 pub struct NStreamer {
     clock: Clock,
     user_interactions: Vec<UserInteraction>,
+    settings: Settings,
 }
 
 impl NStreamer {
