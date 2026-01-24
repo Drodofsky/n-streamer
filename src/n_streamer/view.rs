@@ -17,7 +17,7 @@ impl NStreamer {
     fn view_top(&self) -> Element<'_, Message> {
         container(
             row![
-                text_button("Settings"),
+                self.settings.view(),
                 text_button("Program Schedule"),
                 text_button("Watch Live"),
                 text_button("current program").width(Length::Fill),
