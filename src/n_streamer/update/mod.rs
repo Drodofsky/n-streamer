@@ -1,3 +1,5 @@
+mod settings;
+mod theme;
 mod window;
 pub use super::*;
 use iced::Task;
@@ -10,7 +12,7 @@ impl NStreamer {
                 Task::none()
             }
             Message::Window(wm) => self.update_window(wm),
-            Message::SettingSelected(setting) => self.settings.update(setting),
+            Message::SettingSelected(setting) => self.update_settings(setting),
         }
     }
 }

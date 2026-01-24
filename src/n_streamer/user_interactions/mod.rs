@@ -1,4 +1,5 @@
 mod exit;
+mod theme;
 use super::*;
 impl NStreamer {
     pub fn add_user_interaction(

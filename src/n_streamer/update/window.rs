@@ -22,6 +22,17 @@ impl NStreamer {
                 self.close_user_interaction();
                 Task::none()
             }
+            WindowMessage::UpdateTheme(theme) => {
+                self.close_user_interaction();
+                let t1 = self.settings.set_theme(theme);
+                let t2 = self.update_theme();
+                Task::batch([t1, t2])
+            }
+            WindowMessage::ApplyTheme(theme) => {
+                self.theme = theme;
+                Task::none()
+            }
+            WindowMessage::OnSystemThemeUpdate => self.update_theme(),
         }
     }
 }
