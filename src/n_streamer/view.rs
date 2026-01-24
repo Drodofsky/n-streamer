@@ -14,7 +14,7 @@ impl NStreamer {
                 text_button("Settings"),
                 text_button("Program Schedule"),
                 text_button("Watch Live"),
-                text_button("current program"),
+                text_button("current program").width(Length::Fill),
                 text_button("Manage Downloads"),
                 text_button("Library"),
                 self.clock.view()
