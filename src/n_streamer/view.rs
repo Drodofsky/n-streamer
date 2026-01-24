@@ -1,12 +1,12 @@
 use iced::{
-    Alignment, Element,
-    widget::{container, row},
+    Alignment, Element, Length,
+    widget::{column, container, row},
 };
 
 use super::*;
 impl NStreamer {
     pub fn view(&self) -> Element<'_, Message> {
-        self.view_top()
+        column![self.view_top(), self.view_center()].into()
     }
     fn view_top(&self) -> Element<'_, Message> {
         container(
@@ -25,5 +25,10 @@ impl NStreamer {
         .padding(PADDING)
         .style(container::bordered_box)
         .into()
+    }
+    fn view_center(&self) -> Element<'_, Message> {
+        container(iced::widget::text("Hello World"))
+            .center(Length::Fill)
+            .into()
     }
 }
