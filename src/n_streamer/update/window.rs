@@ -28,8 +28,10 @@ impl NStreamer {
                 let t2 = self.update_theme();
                 Task::batch([t1, t2])
             }
-            WindowMessage::ApplyTheme(theme) => {
-                self.theme = theme;
+            WindowMessage::ApplySystemTheme(theme) => {
+                if self.settings.get_theme() == Theme::System {
+                    self.theme = theme;
+                }
                 Task::none()
             }
             WindowMessage::OnSystemThemeUpdate => self.update_theme(),

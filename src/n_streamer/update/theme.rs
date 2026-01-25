@@ -5,7 +5,6 @@ use super::*;
 impl NStreamer {
     pub(crate) fn update_theme(&mut self) -> Task<Message> {
         let theme = self.settings.get_theme();
-
         match theme {
             Theme::Dark => {
                 self.theme = iced::Theme::Dark;
@@ -23,7 +22,7 @@ impl NStreamer {
                         return Message::Tick;
                     }
                 };
-                Message::Window(WindowMessage::ApplyTheme(theme))
+                Message::Window(WindowMessage::ApplySystemTheme(theme))
             }),
         }
     }
