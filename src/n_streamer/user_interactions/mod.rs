@@ -1,3 +1,4 @@
+mod error;
 mod exit;
 mod theme;
 use super::*;

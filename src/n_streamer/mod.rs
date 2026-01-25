@@ -1,4 +1,5 @@
 mod components;
+mod error;
 mod init;
 mod message;
 mod subscription;
@@ -6,11 +7,15 @@ mod theme;
 mod ui_utils;
 mod update;
 mod user_interactions;
+mod utils;
 mod view;
 pub use components::*;
+pub use error::*;
 pub use message::*;
 pub use ui_utils::*;
 pub use user_interactions::*;
+pub use utils::*;
+
 pub struct NStreamer {
     clock: Clock,
     user_interactions: Vec<UserInteraction>,

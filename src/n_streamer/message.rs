@@ -6,6 +6,8 @@ pub enum Message {
     Tick,
     Window(WindowMessage),
     SettingSelected(SettingItem),
+    Result(Result<(), Error>),
+    Loaded(LoadedMessage),
 }
 
 #[derive(Debug, Clone)]
@@ -15,5 +17,10 @@ pub enum WindowMessage {
     CloseUserInteraction,
     UpdateTheme(Theme),
     OnSystemThemeUpdate,
-    ApplyTheme(iced::Theme),
+    ApplySystemTheme(iced::Theme),
+}
+
+#[derive(Debug, Clone)]
+pub enum LoadedMessage {
+    Settings(Result<Settings, Error>),
 }

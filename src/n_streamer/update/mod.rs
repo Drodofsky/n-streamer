@@ -1,3 +1,4 @@
+mod loaded;
 mod settings;
 mod theme;
 mod window;
@@ -13,6 +14,8 @@ impl NStreamer {
             }
             Message::Window(wm) => self.update_window(wm),
             Message::SettingSelected(setting) => self.update_settings(setting),
+            Message::Result(res) => self.apply_result_and_return(res, Task::none()),
+            Message::Loaded(l) => self.loaded(l),
         }
     }
 }
