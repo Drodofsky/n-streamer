@@ -1,5 +1,9 @@
+use rfd::AsyncFileDialog;
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{
+    fmt,
+    path::{Path, PathBuf},
+};
 use tokio::{
     fs::File,
     io::{AsyncReadExt, AsyncWriteExt},
@@ -14,6 +18,7 @@ use iced::{
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SettingItem {
     Exit,
+    Locations,
     Theme,
 }
 
@@ -22,6 +27,7 @@ impl fmt::Display for SettingItem {
         match self {
             SettingItem::Exit => write!(f, "Exit"),
             SettingItem::Theme => write!(f, "Theme"),
+            SettingItem::Locations => write!(f, "Locations"),
         }
     }
 }
@@ -29,18 +35,24 @@ impl fmt::Display for SettingItem {
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
     theme: Option<Theme>,
+    stream_url: Option<String>,
+    media_path: Option<PathBuf>,
 }
 
 impl Settings {
     pub fn view(&self) -> Element<'_, Message> {
-        let options = [SettingItem::Theme, SettingItem::Exit];
+        let options = [
+            SettingItem::Locations,
+            SettingItem::Theme,
+            SettingItem::Exit,
+        ];
         let selected: Option<SettingItem> = None;
-        pick_list(options, selected, Message::SettingSelected)
-            .placeholder("Settings")
-            .style(|theme, status| {
-                to_pick_list_style(button::primary(theme, to_button_status(status)))
-            })
-            .into()
+        pick_list(options, selected, |s| {
+            Message::Settings(SettingsMessage::SettingSelected(s))
+        })
+        .placeholder("Settings")
+        .style(|theme, status| to_pick_list_style(button::primary(theme, to_button_status(status))))
+        .into()
     }
     pub fn set_theme(&mut self, theme: Theme) -> Task<Message> {
         self.theme = Some(theme);
@@ -48,6 +60,18 @@ impl Settings {
     }
     pub fn get_theme(&mut self) -> Theme {
         self.theme.unwrap_or(Theme::System)
+    }
+    pub fn set_stream_url(&mut self, stream_url: String) {
+        self.stream_url = Some(stream_url);
+    }
+    pub fn stream_url(&self) -> Option<&str> {
+        self.stream_url.as_deref()
+    }
+    pub fn media_path(&self) -> Option<&Path> {
+        self.media_path.as_deref()
+    }
+    pub fn set_media_path(&mut self, path: PathBuf) {
+        self.media_path = Some(path);
     }
     pub async fn load() -> Result<Settings, Error> {
         let project_dir = get_project_dir()?;
@@ -74,6 +98,14 @@ impl Settings {
         let config_str = toml::to_string_pretty(&self)?;
         file.write_all(config_str.as_bytes()).await?;
         Ok(())
+    }
+    pub(crate) async fn browse_media_path() -> Option<String> {
+        AsyncFileDialog::new()
+            .set_can_create_directories(true)
+            .set_title("Choose Media Folder")
+            .pick_folder()
+            .await
+            .and_then(|h| h.path().to_str().map(|s| s.to_string()))
     }
 }
 

@@ -5,9 +5,9 @@ use iced::window::Id as WindowId;
 pub enum Message {
     Tick,
     Window(WindowMessage),
-    SettingSelected(SettingItem),
     Result(Result<(), Error>),
     Loaded(LoadedMessage),
+    Settings(SettingsMessage),
 }
 
 #[derive(Debug, Clone)]
@@ -15,7 +15,6 @@ pub enum WindowMessage {
     ExitRequest(WindowId),
     Exit(WindowId),
     CloseUserInteraction,
-    UpdateTheme(Theme),
     OnSystemThemeUpdate,
     ApplySystemTheme(iced::Theme),
 }
@@ -23,4 +22,15 @@ pub enum WindowMessage {
 #[derive(Debug, Clone)]
 pub enum LoadedMessage {
     Settings(Result<Settings, Error>),
+}
+
+#[derive(Debug, Clone)]
+pub enum SettingsMessage {
+    UpdateTheme(Theme),
+    SettingSelected(SettingItem),
+    NewStreamUrl(String),
+    NewMediaPath(String),
+    MaybeNewMediaPath(Option<String>),
+    OpenMediaPathBrowser,
+    SaveAndCloseSettings,
 }

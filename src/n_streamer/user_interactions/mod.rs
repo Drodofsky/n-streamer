@@ -1,5 +1,6 @@
 mod error;
 mod exit;
+mod locations;
 mod theme;
 use super::*;
 impl NStreamer {
