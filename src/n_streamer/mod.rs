@@ -21,6 +21,8 @@ pub struct NStreamer {
     user_interactions: Vec<UserInteraction>,
     settings: Settings,
     theme: iced::Theme,
+    live_stream: LiveStream,
+    center: Center,
 }
 
 impl NStreamer {
@@ -36,6 +38,17 @@ impl Default for NStreamer {
             user_interactions: Vec::new(),
             settings: Settings::default(),
             theme: iced::Theme::Dark,
+            live_stream: LiveStream::default(),
+            center: Center::default(),
         }
     }
+}
+
+#[derive(Debug, Default, Clone, Copy)]
+pub enum Center {
+    #[default]
+    ProgramSchedule,
+    LiveStream,
+    Downloads,
+    Library,
 }

@@ -7,6 +7,8 @@ pub enum Error {
     FileSystem(String),
     IO(String),
     Config(String),
+    Url(String),
+    VideoPlayer(String),
 }
 
 impl fmt::Display for Error {
@@ -20,6 +22,12 @@ impl fmt::Display for Error {
             }
             Self::Config(e) => {
                 write!(f, "Config: {}", e)
+            }
+            Self::Url(e) => {
+                write!(f, "URL: {}", e)
+            }
+            Self::VideoPlayer(e) => {
+                write!(f, "video player: {}", e)
             }
         }
     }
@@ -76,5 +84,17 @@ impl From<toml::de::Error> for Error {
 impl From<toml::ser::Error> for Error {
     fn from(value: toml::ser::Error) -> Self {
         Self::Config(value.to_string())
+    }
+}
+
+impl From<url::ParseError> for Error {
+    fn from(value: url::ParseError) -> Self {
+        Self::Url(value.to_string())
+    }
+}
+
+impl From<iced_video_player::Error> for Error {
+    fn from(value: iced_video_player::Error) -> Self {
+        Self::VideoPlayer(value.to_string())
     }
 }

@@ -22,6 +22,9 @@ impl NStreamer {
         self.user_interactions
             .remove(self.user_interactions.len() - 1);
     }
+    pub fn clear_user_interaction(&mut self) {
+        self.user_interactions.clear();
+    }
 }
 
 pub struct UserInteraction {
