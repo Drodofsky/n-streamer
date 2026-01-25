@@ -13,9 +13,9 @@ impl NStreamer {
                 Task::none()
             }
             Message::Window(wm) => self.update_window(wm),
-            Message::SettingSelected(setting) => self.update_settings(setting),
             Message::Result(res) => self.apply_result_and_return(res, Task::none()),
             Message::Loaded(l) => self.loaded(l),
+            Message::Settings(s) => self.update_setting(s),
         }
     }
 }
