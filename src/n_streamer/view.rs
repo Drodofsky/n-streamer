@@ -1,6 +1,6 @@
 use iced::{
     Alignment, Element, Length,
-    widget::{column, container, row},
+    widget::{column, container, row, text},
 };
 
 use super::*;
@@ -18,11 +18,13 @@ impl NStreamer {
         container(
             row![
                 self.settings.view(),
-                text_button("Program Schedule"),
-                text_button("Watch Live"),
+                text_button("Program Schedule")
+                    .on_press(Message::MenuButtonPressed(Center::ProgramSchedule)),
+                text_button("Watch Live").on_press(Message::MenuButtonPressed(Center::LiveStream)),
                 text_button("current program").width(Length::Fill),
-                text_button("Manage Downloads"),
-                text_button("Library"),
+                text_button("Manage Downloads")
+                    .on_press(Message::MenuButtonPressed(Center::Downloads)),
+                text_button("Library").on_press(Message::MenuButtonPressed(Center::Library)),
                 self.clock.view()
             ]
             .spacing(SPACING)
@@ -33,8 +35,12 @@ impl NStreamer {
         .into()
     }
     fn view_center(&self) -> Element<'_, Message> {
-        container(iced::widget::text("Hello World"))
-            .center(Length::Fill)
-            .into()
+        let center = match self.center {
+            Center::LiveStream => self.live_stream.view(),
+            Center::ProgramSchedule => text("Hello World!").into(),
+            Center::Downloads => text("Hello World!").into(),
+            Center::Library => text("Hello World!").into(),
+        };
+        container(center).center(Length::Fill).into()
     }
 }

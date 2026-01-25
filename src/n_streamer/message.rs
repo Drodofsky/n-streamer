@@ -1,5 +1,8 @@
+use std::sync::Arc;
+
 use super::*;
 use iced::window::Id as WindowId;
+use iced_video_player::Video;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -8,6 +11,7 @@ pub enum Message {
     Result(Result<(), Error>),
     Loaded(LoadedMessage),
     Settings(SettingsMessage),
+    MenuButtonPressed(Center),
 }
 
 #[derive(Debug, Clone)]
@@ -22,6 +26,7 @@ pub enum WindowMessage {
 #[derive(Debug, Clone)]
 pub enum LoadedMessage {
     Settings(Result<Settings, Error>),
+    LiveStream(Result<Arc<Video>, Error>),
 }
 
 #[derive(Debug, Clone)]
