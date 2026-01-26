@@ -7,3 +7,8 @@ fn main() -> iced::Result {
         .exit_on_close_request(false)
         .run()
 }
+
+// TODO
+// open questions: why does the live stream crash
+// why does the live stream apply the audio settings at start
+// TODO error handling for video mutation
