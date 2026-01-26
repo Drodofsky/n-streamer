@@ -49,4 +49,26 @@ impl LiveStream {
     async fn init_live_stream(uri: String) -> Result<Arc<Video>, Error> {
         Ok(Arc::new(Video::new(&Url::parse(&uri)?)?))
     }
+    /// Set the volume multiplier of the audio.
+    /// `0.0` = 0% volume, `1.0` = 100% volume.
+    ///
+    /// This uses a linear scale, for example `0.5` is perceived as half as loud.
+    pub fn set_volume(&mut self, volume: f32) {
+        if let Some(video) = &mut self.video {
+            if let Some(v) = Arc::get_mut(video) {
+                v.set_volume(f64::from(volume) / 100.);
+            } else {
+                println!("could not make mutable")
+            }
+        }
+    }
+    pub fn set_muted(&mut self, muted: bool) {
+        if let Some(video) = &mut self.video {
+            if let Some(v) = Arc::get_mut(video) {
+                v.set_muted(muted);
+            } else {
+                println!("could not make mutable")
+            }
+        }
+    }
 }

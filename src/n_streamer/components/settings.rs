@@ -20,6 +20,7 @@ pub enum SettingItem {
     Exit,
     Locations,
     Theme,
+    Sound,
 }
 
 impl fmt::Display for SettingItem {
@@ -28,6 +29,7 @@ impl fmt::Display for SettingItem {
             SettingItem::Exit => write!(f, "Exit"),
             SettingItem::Theme => write!(f, "Theme"),
             SettingItem::Locations => write!(f, "Locations"),
+            SettingItem::Sound => write!(f, "Sound"),
         }
     }
 }
@@ -37,11 +39,14 @@ pub struct Settings {
     theme: Option<Theme>,
     stream_url: Option<String>,
     media_path: Option<PathBuf>,
+    volume: Option<f32>,
+    muted: Option<bool>,
 }
 
 impl Settings {
     pub fn view(&self) -> Element<'_, Message> {
         let options = [
+            SettingItem::Sound,
             SettingItem::Locations,
             SettingItem::Theme,
             SettingItem::Exit,
@@ -63,6 +68,18 @@ impl Settings {
     }
     pub fn set_stream_url(&mut self, stream_url: String) {
         self.stream_url = Some(stream_url);
+    }
+    pub fn set_volume(&mut self, volume: f32) {
+        self.volume = Some(volume);
+    }
+    pub fn set_muted(&mut self, muted: bool) {
+        self.muted = Some(muted);
+    }
+    pub fn volume(&self) -> f32 {
+        self.volume.unwrap_or(80.)
+    }
+    pub fn muted(&self) -> bool {
+        self.muted.unwrap_or(false)
     }
     pub fn stream_url(&self) -> Option<&str> {
         self.stream_url.as_deref()

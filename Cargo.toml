@@ -8,7 +8,7 @@ iced = {version = "0.14", features = ["tokio","debug"]}
 chrono = {version = "^0.4",features = ["serde"]}
 chrono-tz = "^0.10"
 tokio = {version = "^1.40",features = ["process","fs","macros", "rt-multi-thread"]}
-iced_video_player = {git="https://github.com/jazzfool/iced_video_player.git",branch = "master"}
+iced_video_player = {git="https://github.com/Drodofsky/iced_video_player.git",branch = "master"}
 url = "^2.5"
 directories = "6.0.0"
 toml = "0.9.7"
