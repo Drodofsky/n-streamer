@@ -38,4 +38,6 @@ pub enum SettingsMessage {
     MaybeNewMediaPath(Option<String>),
     OpenMediaPathBrowser,
     SaveAndCloseSettings,
+    SetVolume(f32),
+    SetMuted(bool),
 }

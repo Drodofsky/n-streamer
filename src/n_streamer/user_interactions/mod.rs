@@ -1,6 +1,11 @@
+// TODO
+// open questions: why does the live stream crash
+// why does the live stream apply the audio settings at start
+
 mod error;
 mod exit;
 mod locations;
+mod sound;
 mod theme;
 use super::*;
 impl NStreamer {

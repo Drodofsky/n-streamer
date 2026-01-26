@@ -32,6 +32,16 @@ impl NStreamer {
                 }
                 Task::none()
             }
+            SettingsMessage::SetMuted(muted) => {
+                self.settings.set_muted(muted);
+                self.live_stream.set_muted(muted);
+                Task::none()
+            }
+            SettingsMessage::SetVolume(volume) => {
+                self.settings.set_volume(volume);
+                self.live_stream.set_volume(volume);
+                Task::none()
+            }
         }
     }
     fn on_setting_selected(&mut self, setting_item: SettingItem) -> Task<Message> {
@@ -50,6 +60,13 @@ impl NStreamer {
             SettingItem::Locations => {
                 self.add_user_interaction(
                     Box::new(|s| s.view_locations_popup()),
+                    super::Priority::Task,
+                );
+                Task::none()
+            }
+            SettingItem::Sound => {
+                self.add_user_interaction(
+                    Box::new(|s| s.view_sound_popup()),
                     super::Priority::Task,
                 );
                 Task::none()
