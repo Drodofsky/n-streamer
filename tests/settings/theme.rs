@@ -76,3 +76,24 @@ async fn load_dark_theme() {
     execute_tasks(task, &mut n_streamer).await;
     assert_eq!(n_streamer.theme(), iced::Theme::Dark);
 }
+
+#[tokio::test]
+async fn select_system_theme() {
+    let mut n_streamer = NStreamer::default();
+    n_streamer.set_project_dir("n_streamer_tests/theme/select_system_theme");
+
+    let task = n_streamer.update(Message::Settings(SettingsMessage::SettingSelected(
+        SettingItem::Theme,
+    )));
+    execute_tasks(task, &mut n_streamer).await;
+    let mut ui = simulator(n_streamer.view());
+
+    let _ = ui.click("System").unwrap();
+    for message in ui.into_messages() {
+        let task = n_streamer.update(message);
+        execute_tasks(task, &mut n_streamer).await;
+    }
+
+    let settings = Settings::load(n_streamer.get_project_dir()).await.unwrap();
+    assert_eq!(settings.get_theme(), Theme::System);
+}
