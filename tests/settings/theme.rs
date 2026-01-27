@@ -1,4 +1,5 @@
 use crate::execute_tasks;
+use directories::ProjectDirs;
 use iced_test::simulator;
 use n_streamer::*;
 
@@ -25,6 +26,21 @@ async fn select_white_theme() {
 }
 
 #[tokio::test]
+async fn load_light_theme() {
+    let dir = "n_streamer_tests/theme/load_light_theme";
+    let mut settings = Settings::default();
+    let project_dir = ProjectDirs::from_path(dir.into()).unwrap();
+    let task = settings.set_theme(Theme::Light, Ok(project_dir.clone()));
+    let mut n_streamer = NStreamer::default();
+    n_streamer.set_project_dir(dir);
+    execute_tasks(task, &mut n_streamer).await;
+
+    let (mut n_streamer, task) = NStreamer::init(Some(project_dir));
+    execute_tasks(task, &mut n_streamer).await;
+    assert_eq!(n_streamer.theme(), iced::Theme::Light);
+}
+
+#[tokio::test]
 async fn select_dark_theme() {
     let mut n_streamer = NStreamer::default();
     n_streamer.set_project_dir("n_streamer_tests/theme/select_dark_theme");
@@ -43,5 +59,20 @@ async fn select_dark_theme() {
 
     let settings = Settings::load(n_streamer.get_project_dir()).await.unwrap();
     assert_eq!(settings.get_theme(), Theme::Dark);
+    assert_eq!(n_streamer.theme(), iced::Theme::Dark);
+}
+
+#[tokio::test]
+async fn load_dark_theme() {
+    let dir = "n_streamer_tests/theme/load_dark_theme";
+    let mut settings = Settings::default();
+    let project_dir = ProjectDirs::from_path(dir.into()).unwrap();
+    let task = settings.set_theme(Theme::Dark, Ok(project_dir.clone()));
+    let mut n_streamer = NStreamer::default();
+    n_streamer.set_project_dir(dir);
+    execute_tasks(task, &mut n_streamer).await;
+
+    let (mut n_streamer, task) = NStreamer::init(Some(project_dir));
+    execute_tasks(task, &mut n_streamer).await;
     assert_eq!(n_streamer.theme(), iced::Theme::Dark);
 }
