@@ -1,4 +1,4 @@
-use turso::Builder;
+use turso::{Builder, Connection};
 
 use super::*;
 
@@ -13,4 +13,16 @@ pub async fn start_db(settings: Settings) -> Result<Database, Error> {
     } else {
         Err(error)
     }
+}
+
+pub async fn init_db(connection: Result<Connection, turso::Error>) -> Result<(), Error> {
+    let connection = connection?;
+    connection
+        .query("PRAGMA journal_mode = 'experimental_mvcc';", [0u32; 0])
+        .await?;
+    connection
+        .execute(include_str!("../db/create_table_episode.sql"), [0u32; 0])
+        .await?;
+
+    Ok(())
 }

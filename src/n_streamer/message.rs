@@ -46,4 +46,5 @@ pub enum SettingsMessage {
 #[derive(Debug, Clone)]
 pub enum DBMessage {
     Started(Result<Database, Error>),
+    Initialized(Result<(), Error>),
 }
