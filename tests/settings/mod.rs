@@ -1,1 +1,2 @@
+mod locations;
 mod theme;

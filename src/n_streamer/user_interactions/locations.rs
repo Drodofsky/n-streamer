@@ -1,7 +1,7 @@
 use iced::{
     Element,
     Length::FillPortion,
-    widget::{column, container, row, text, text_input},
+    widget::{Id, column, container, row, text, text_input},
 };
 
 use super::*;
@@ -13,6 +13,7 @@ impl NStreamer {
                 column![
                     text("Streaming URL"),
                     text_input("", self.settings.stream_url().unwrap_or(""))
+                        .id(Id::new("streaming_url_input"))
                         .on_input(|s| Message::Settings(SettingsMessage::NewStreamUrl(s))),
                     text("Media folder"),
                     text_input(
@@ -22,6 +23,7 @@ impl NStreamer {
                             .and_then(|p| p.to_str())
                             .unwrap_or("")
                     )
+                    .id(Id::new("media_path_input"))
                     .on_input(|s| Message::Settings(SettingsMessage::NewMediaPath(s))),
                     row![
                         text_button("Browse")
