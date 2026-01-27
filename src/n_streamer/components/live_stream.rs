@@ -19,7 +19,9 @@ impl LiveStream {
     }
     pub fn view(&self) -> Element<'_, Message> {
         if let Some(live_view) = self.view_live() {
-            live_view
+            widget::container(live_view)
+                .id(widget::Id::new("playing_live"))
+                .into()
         } else {
             widget::text("Loading ...").into()
         }

@@ -1,13 +1,13 @@
 use iced::{
     Element,
     Length::FillPortion,
-    widget::{container, row},
+    widget::{Id, container, row},
 };
 
 pub use super::*;
 
 impl NStreamer {
-    pub(crate) fn view_error_popup(&self, message: String) -> Element<'_, Message> {
+    pub(crate) fn view_error_popup(&self, message: String, id: Id) -> Element<'_, Message> {
         create_pop_up(
             message.to_string(),
             container(
@@ -18,7 +18,8 @@ impl NStreamer {
                         .on_press(Message::Window(WindowMessage::CloseUserInteraction))
                 ]
                 .padding(PADDING),
-            ),
+            )
+            .id(id),
         )
         .into()
     }

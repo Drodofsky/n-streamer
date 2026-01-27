@@ -1,3 +1,4 @@
+mod center;
 mod settings;
 use iced::{Task, futures::StreamExt};
 use iced_runtime::task::into_stream;

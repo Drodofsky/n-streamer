@@ -3,7 +3,7 @@ mod settings;
 mod theme;
 mod window;
 pub use super::*;
-use iced::Task;
+use iced::{Task, widget::Id};
 
 impl NStreamer {
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -28,6 +28,7 @@ impl NStreamer {
                         Box::new(|s| {
                             s.view_error_popup(
                                 "Please configure a streaming url in settings.".to_string(),
+                                Id::new("error_no_streaming_url_configured"),
                             )
                         }),
                         super::Priority::Error,

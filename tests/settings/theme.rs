@@ -1,6 +1,7 @@
-use super::*;
+use crate::execute_tasks;
 use iced_test::simulator;
 use n_streamer::*;
+
 #[tokio::test]
 async fn select_white_theme() {
     let mut n_streamer = NStreamer::default();

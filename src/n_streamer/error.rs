@@ -1,5 +1,7 @@
 use std::fmt;
 
+use iced::widget::Id;
+
 use super::*;
 
 #[derive(Debug, Clone)]
@@ -33,6 +35,18 @@ impl fmt::Display for Error {
     }
 }
 
+impl Error {
+    pub fn id(&self) -> Id {
+        match self {
+            Self::FileSystem(_) => Id::new("error_file_system"),
+            Self::IO(_) => Id::new("error_IO"),
+            Self::Config(_) => Id::new("error_config"),
+            Self::Url(_) => Id::new("error_URL"),
+            Self::VideoPlayer(_) => Id::new("error_video_player"),
+        }
+    }
+}
+
 impl NStreamer {
     pub(crate) fn apply_result_and_return<T, R>(
         &mut self,
@@ -47,7 +61,7 @@ impl NStreamer {
             Ok(_) => {}
             Err(e) => {
                 self.add_user_interaction(
-                    Box::new(move |s| s.view_error_popup(e.to_string())),
+                    Box::new(move |s| s.view_error_popup(e.to_string(), e.id())),
                     super::Priority::Error,
                 );
             }
@@ -62,7 +76,7 @@ impl NStreamer {
             Ok(x) => f(self, x),
             Err(e) => {
                 self.add_user_interaction(
-                    Box::new(move |s| s.view_error_popup(e.to_string())),
+                    Box::new(move |s| s.view_error_popup(e.to_string(), e.id())),
                     super::Priority::Error,
                 );
             }
