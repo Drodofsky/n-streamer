@@ -3,10 +3,17 @@ use std::path::PathBuf;
 use directories::ProjectDirs;
 
 use super::*;
-pub fn get_project_dir() -> Result<ProjectDirs, Error> {
-    ProjectDirs::from("dev", "Drodofsky", "n-streamer")
-        .ok_or(Error::FileSystem("Failed to get ProjectDirs".to_string()))
+
+impl NStreamer {
+    pub fn get_project_dir(&self) -> Result<ProjectDirs, Error> {
+        if let Some(project_dir) = &self.project_dir {
+            return Ok(project_dir.clone());
+        }
+        ProjectDirs::from("dev", "Drodofsky", "n-streamer")
+            .ok_or(Error::FileSystem("Failed to get ProjectDirs".to_string()))
+    }
 }
+
 pub fn get_default_media_dir() -> Result<PathBuf, Error> {
     Ok(ProjectDirs::from("dev", "Drodofsky", "n-streamer")
         .ok_or(Error::FileSystem("Failed to get ProjectDirs".to_string()))?

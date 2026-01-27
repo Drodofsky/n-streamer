@@ -9,7 +9,10 @@ mod update;
 mod user_interactions;
 mod utils;
 mod view;
+use std::path::PathBuf;
+
 pub use components::*;
+use directories::ProjectDirs;
 pub use error::*;
 pub use message::*;
 pub use ui_utils::*;
@@ -23,11 +26,17 @@ pub struct NStreamer {
     theme: iced::Theme,
     live_stream: LiveStream,
     center: Center,
+    // only for testing
+    project_dir: Option<ProjectDirs>,
 }
 
 impl NStreamer {
     pub fn new() -> Self {
         Self::default()
+    }
+    #[allow(dead_code)]
+    pub fn set_project_dir(&mut self, path: impl Into<PathBuf>) {
+        self.project_dir = ProjectDirs::from_path(path.into());
     }
 }
 
@@ -40,6 +49,7 @@ impl Default for NStreamer {
             theme: iced::Theme::Dark,
             live_stream: LiveStream::default(),
             center: Center::default(),
+            project_dir: None,
         }
     }
 }

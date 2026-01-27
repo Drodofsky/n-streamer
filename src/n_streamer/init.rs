@@ -7,7 +7,7 @@ use super::*;
 impl NStreamer {
     pub fn init() -> (Self, Task<Message>) {
         let n_streamer = Self::new();
-        let settings = Task::perform(Settings::load(), |s| {
+        let settings = Task::perform(Settings::load(n_streamer.get_project_dir()), |s| {
             Message::Loaded(LoadedMessage::Settings(s))
         });
 

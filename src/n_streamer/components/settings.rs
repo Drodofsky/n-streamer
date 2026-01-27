@@ -59,11 +59,15 @@ impl Settings {
         .style(|theme, status| to_pick_list_style(button::primary(theme, to_button_status(status))))
         .into()
     }
-    pub fn set_theme(&mut self, theme: Theme) -> Task<Message> {
+    pub fn set_theme(
+        &mut self,
+        theme: Theme,
+        project_dir: Result<ProjectDirs, Error>,
+    ) -> Task<Message> {
         self.theme = Some(theme);
-        Task::perform(Self::save(self.clone()), Message::Result)
+        Task::perform(Self::save(self.clone(), project_dir), Message::Result)
     }
-    pub fn get_theme(&mut self) -> Theme {
+    pub fn get_theme(&self) -> Theme {
         self.theme.unwrap_or(Theme::System)
     }
     pub fn set_stream_url(&mut self, stream_url: String) {
@@ -90,8 +94,8 @@ impl Settings {
     pub fn set_media_path(&mut self, path: PathBuf) {
         self.media_path = Some(path);
     }
-    pub async fn load() -> Result<Settings, Error> {
-        let project_dir = get_project_dir()?;
+    pub async fn load(project_dir: Result<ProjectDirs, Error>) -> Result<Settings, Error> {
+        let project_dir = project_dir?;
         std::fs::create_dir_all(project_dir.preference_dir())?;
         let mut file = match File::open(project_dir.preference_dir().join("config.toml")).await {
             Ok(f) => f,
@@ -109,8 +113,9 @@ impl Settings {
         let settings: Settings = toml::from_str(&config_str)?;
         Ok(settings)
     }
-    pub async fn save(self) -> Result<(), Error> {
-        let project_dir = get_project_dir()?;
+    pub async fn save(self, project_dir: Result<ProjectDirs, Error>) -> Result<(), Error> {
+        let project_dir = project_dir?;
+        tokio::fs::create_dir_all(project_dir.preference_dir()).await?;
         let mut file = File::create(project_dir.preference_dir().join("config.toml")).await?;
         let config_str = toml::to_string_pretty(&self)?;
         file.write_all(config_str.as_bytes()).await?;

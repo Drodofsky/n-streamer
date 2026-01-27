@@ -5,7 +5,7 @@ impl NStreamer {
             SettingsMessage::SettingSelected(s) => self.on_setting_selected(s),
             SettingsMessage::UpdateTheme(t) => {
                 self.close_user_interaction();
-                let t1 = self.settings.set_theme(t);
+                let t1 = self.settings.set_theme(t, self.get_project_dir());
                 let t2 = self.update_theme();
                 Task::batch([t1, t2])
             }
@@ -24,7 +24,10 @@ impl NStreamer {
             }
             SettingsMessage::SaveAndCloseSettings => {
                 self.close_user_interaction();
-                Task::perform(Settings::save(self.settings.clone()), Message::Result)
+                Task::perform(
+                    Settings::save(self.settings.clone(), self.get_project_dir()),
+                    Message::Result,
+                )
             }
             SettingsMessage::MaybeNewMediaPath(path) => {
                 if let Some(path) = path {
