@@ -11,6 +11,7 @@ pub enum Error {
     Config(String),
     Url(String),
     VideoPlayer(String),
+    Database(String),
 }
 
 impl fmt::Display for Error {
@@ -31,6 +32,9 @@ impl fmt::Display for Error {
             Self::VideoPlayer(e) => {
                 write!(f, "video player: {}", e)
             }
+            Self::Database(e) => {
+                write!(f, "Database: {}", e)
+            }
         }
     }
 }
@@ -43,6 +47,7 @@ impl Error {
             Self::Config(_) => Id::new("error_config"),
             Self::Url(_) => Id::new("error_URL"),
             Self::VideoPlayer(_) => Id::new("error_video_player"),
+            Self::Database(_) => Id::new("error_database"),
         }
     }
 }
@@ -110,5 +115,11 @@ impl From<url::ParseError> for Error {
 impl From<iced_video_player::Error> for Error {
     fn from(value: iced_video_player::Error) -> Self {
         Self::VideoPlayer(value.to_string())
+    }
+}
+
+impl From<turso::Error> for Error {
+    fn from(value: turso::Error) -> Self {
+        Self::Database(value.to_string())
     }
 }

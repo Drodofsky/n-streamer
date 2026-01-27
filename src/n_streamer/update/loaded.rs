@@ -15,6 +15,7 @@ impl NStreamer {
         let res = self.live_stream.new_live_stream(live_stream);
         self.apply_result_and_return(res, Task::none())
     }
+    // should only be called once
     fn loaded_settings(&mut self, settings: Result<Settings, Error>) -> Task<Message> {
         self.apply_result_and(settings, |this, s| this.settings = s);
         self.init_second_stage()

@@ -1,4 +1,5 @@
 mod components;
+mod db;
 mod error;
 mod init;
 mod message;
@@ -15,6 +16,7 @@ pub use components::*;
 use directories::ProjectDirs;
 pub use error::*;
 pub use message::*;
+use turso::Database;
 pub use ui_utils::*;
 pub use user_interactions::*;
 pub use utils::*;
@@ -26,6 +28,7 @@ pub struct NStreamer {
     theme: iced::Theme,
     live_stream: LiveStream,
     center: Center,
+    db: Option<Database>,
     // only for testing
     project_dir: Option<ProjectDirs>,
 }
@@ -50,6 +53,7 @@ impl Default for NStreamer {
             live_stream: LiveStream::default(),
             center: Center::default(),
             project_dir: None,
+            db: None,
         }
     }
 }

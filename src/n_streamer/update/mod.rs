@@ -1,3 +1,4 @@
+mod database;
 mod loaded;
 mod settings;
 mod theme;
@@ -16,6 +17,7 @@ impl NStreamer {
             Message::Result(res) => self.apply_result_and_return(res, Task::none()),
             Message::Loaded(l) => self.loaded(l),
             Message::Settings(s) => self.update_setting(s),
+            Message::DB(d) => self.update_database(d),
             Message::MenuButtonPressed(Center::LiveStream) => {
                 self.clear_user_interaction();
 

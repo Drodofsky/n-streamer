@@ -2,6 +2,8 @@ use std::path::PathBuf;
 
 use iced::Task;
 
+use crate::n_streamer::db::start_db;
+
 use super::*;
 
 impl NStreamer {
@@ -15,6 +17,7 @@ impl NStreamer {
         (n_streamer, settings)
     }
     pub fn init_second_stage(&mut self) -> Task<Message> {
+        // init media path
         if self.settings.media_path().is_none()
             || self.settings.media_path() == Some(&PathBuf::new())
         {
@@ -22,6 +25,10 @@ impl NStreamer {
                 s.settings.set_media_path(path)
             });
         }
-        self.update_theme()
+        let t1 = self.update_theme();
+        let t2 = Task::perform(start_db(self.settings.clone()), |db| {
+            Message::DB(DBMessage::Started(db))
+        });
+        Task::batch([t1, t2])
     }
 }

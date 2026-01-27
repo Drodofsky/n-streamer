@@ -12,6 +12,7 @@ pub enum Message {
     Loaded(LoadedMessage),
     Settings(SettingsMessage),
     MenuButtonPressed(Center),
+    DB(DBMessage),
 }
 
 #[derive(Debug, Clone)]
@@ -40,4 +41,9 @@ pub enum SettingsMessage {
     SaveAndCloseSettings,
     SetVolume(f32),
     SetMuted(bool),
+}
+
+#[derive(Debug, Clone)]
+pub enum DBMessage {
+    Started(Result<Database, Error>),
 }
