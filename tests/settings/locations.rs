@@ -69,7 +69,7 @@ async fn insert_media_path() {
 #[tokio::test]
 async fn load_streaming_url() {
     let url = "https://google.com";
-    let dir = "n_streamer_tests/theme/load_streaming_url";
+    let dir = "n_streamer_tests/locations/load_streaming_url";
     let project_dir = ProjectDirs::from_path(dir.into()).unwrap();
     let mut settings = Settings::default();
     settings.set_stream_url(url.into());
@@ -88,7 +88,7 @@ async fn load_streaming_url() {
 #[tokio::test]
 async fn load_media_path() {
     let media_path = "/tmp/videos";
-    let dir = "n_streamer_tests/theme/load_media_path";
+    let dir = "n_streamer_tests/locations/load_media_path";
     let project_dir = ProjectDirs::from_path(dir.into()).unwrap();
     let mut settings = Settings::default();
     settings.set_media_path(media_path.into());
