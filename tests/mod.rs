@@ -1,4 +1,5 @@
 mod center;
+mod database;
 mod other;
 mod settings;
 use iced::{Task, futures::StreamExt};

@@ -21,7 +21,7 @@ impl NStreamer {
         if self.settings.media_path().is_none()
             || self.settings.media_path() == Some(&PathBuf::new())
         {
-            self.apply_result_and(get_default_media_dir(), |s, path| {
+            self.apply_result_and(self.get_default_media_dir(), |s, path| {
                 s.settings.set_media_path(path)
             });
         }
