@@ -8,10 +8,7 @@ N-Stream does not bypass DRM or authentication. Using it may violate a provider'
 
   ![](assets/Screenshot_live.png)
 - explore NHK World Premium's schedule
-
-  ![](assets/Screenshot_schedule.png)
-
-
+  - not yet implemented
 
 - download web streams
   - not yet implemented
