@@ -2,6 +2,8 @@ use std::sync::Arc;
 
 use iced_video_player::Video;
 
+use crate::n_streamer::db::add_episodes;
+
 use super::*;
 
 impl NStreamer {
@@ -22,7 +24,15 @@ impl NStreamer {
         self.init_second_stage()
     }
     fn loaded_schedule(&mut self, schedule: Result<AnalyzedSchedule, Error>) -> Task<Message> {
-        self.apply_result(schedule);
-        Task::none()
+        self.apply_result_and_return_task(schedule, |this, s| {
+            if let Some(db) = &this.db {
+                let connection = db.connect();
+                Task::perform(add_episodes(connection, s.episodes), |e| {
+                    Message::DB(DBMessage::EpisodesAdded(e))
+                })
+            } else {
+                Task::none()
+            }
+        })
     }
 }

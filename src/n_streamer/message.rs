@@ -48,4 +48,5 @@ pub enum SettingsMessage {
 pub enum DBMessage {
     Started(Result<Database, Error>),
     Initialized(Result<(), Error>),
+    EpisodesAdded(Result<(), Error>),
 }

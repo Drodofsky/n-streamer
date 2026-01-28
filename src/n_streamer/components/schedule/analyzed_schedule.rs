@@ -83,7 +83,7 @@ impl fmt::Display for AnalyzedEpisode {
         }
     }
 }
-
+#[allow(clippy::non_canonical_partial_ord_impl)]
 impl PartialOrd for AnalyzedEpisode {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         if self.episode_id == other.episode_id {

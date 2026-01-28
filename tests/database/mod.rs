@@ -1,6 +1,7 @@
 use directories::ProjectDirs;
 use turso::{Builder, Database};
 
+mod episode;
 mod init;
 mod start;
 

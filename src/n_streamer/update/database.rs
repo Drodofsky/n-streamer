@@ -19,6 +19,10 @@ impl NStreamer {
                     Message::Loaded(LoadedMessage::Schedule(a))
                 })
             }
+            DBMessage::EpisodesAdded(e) => {
+                self.apply_result(e);
+                Task::none()
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use iced::widget::Id;
+use iced::{Task, widget::Id};
 
 use super::*;
 
@@ -94,6 +94,22 @@ impl NStreamer {
                     Box::new(move |s| s.view_error_popup(e.to_string(), e.id())),
                     super::Priority::Error,
                 );
+            }
+        }
+    }
+    pub(crate) fn apply_result_and_return_task<T>(
+        &mut self,
+        res: Result<T, Error>,
+        mut f: impl FnMut(&mut Self, T) -> Task<Message>,
+    ) -> Task<Message> {
+        match res {
+            Ok(x) => f(self, x),
+            Err(e) => {
+                self.add_user_interaction(
+                    Box::new(move |s| s.view_error_popup(e.to_string(), e.id())),
+                    super::Priority::Error,
+                );
+                Task::none()
             }
         }
     }
