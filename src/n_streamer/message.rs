@@ -22,6 +22,8 @@ pub enum WindowMessage {
     CloseUserInteraction,
     OnSystemThemeUpdate,
     ApplySystemTheme(iced::Theme),
+    Plus(ScrollListOrigin, ScheduleView),
+    ListElementEntered(ScrollListOrigin, usize),
 }
 
 #[derive(Debug, Clone)]
@@ -29,6 +31,7 @@ pub enum LoadedMessage {
     Settings(Result<Settings, Error>),
     LiveStream(Result<Arc<Video>, Error>),
     Schedule(Result<AnalyzedSchedule, Error>),
+    ScheduleView(Result<Vec<ScheduleView>, Error>),
 }
 
 #[derive(Debug, Clone)]
@@ -49,4 +52,13 @@ pub enum DBMessage {
     Started(Result<Database, Error>),
     Initialized(Result<(), Error>),
     EpisodesAdded(Result<(), Error>),
+}
+
+impl ScrollListMessage<ScheduleView> for Message {
+    fn plus(owner: ScrollListOrigin, item: ScheduleView) -> Self {
+        Message::Window(WindowMessage::Plus(owner, item))
+    }
+    fn list_element_entered(owner: ScrollListOrigin, id: usize) -> Self {
+        Message::Window(WindowMessage::ListElementEntered(owner, id))
+    }
 }

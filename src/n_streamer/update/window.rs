@@ -29,6 +29,15 @@ impl NStreamer {
                 Task::none()
             }
             WindowMessage::OnSystemThemeUpdate => self.update_theme(),
+            WindowMessage::Plus(_o, _v) => Task::none(),
+            WindowMessage::ListElementEntered(o, i) => {
+                match o {
+                    ScrollListOrigin::Schedule => {
+                        self.schedule.set_hovered(i);
+                    }
+                }
+                Task::none()
+            }
         }
     }
 }

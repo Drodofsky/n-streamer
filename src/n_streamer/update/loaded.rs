@@ -12,6 +12,7 @@ impl NStreamer {
             LoadedMessage::Settings(s) => self.loaded_settings(s),
             LoadedMessage::LiveStream(l) => self.loaded_live_stream(l),
             LoadedMessage::Schedule(s) => self.loaded_schedule(s),
+            LoadedMessage::ScheduleView(s) => self.loaded_schedule_view(s),
         }
     }
     fn loaded_live_stream(&mut self, live_stream: Result<Arc<Video>, Error>) -> Task<Message> {
@@ -34,5 +35,14 @@ impl NStreamer {
                 Task::none()
             }
         })
+    }
+    fn loaded_schedule_view(
+        &mut self,
+        schedule_view: Result<Vec<ScheduleView>, Error>,
+    ) -> Task<Message> {
+        self.apply_result_and(schedule_view, |this, new| {
+            this.schedule.update_schedule(new)
+        });
+        Task::none()
     }
 }

@@ -1,4 +1,5 @@
-use turso::{Builder, Connection};
+use chrono::{DateTime, Local, TimeDelta};
+use turso::{Builder, Connection, Row};
 
 use super::*;
 
@@ -53,4 +54,50 @@ pub(crate) async fn add_episodes(
     }
 
     Ok(())
+}
+
+pub(crate) async fn get_schedule_view(
+    connection: Result<Connection, turso::Error>,
+    after: String,
+) -> Result<Vec<ScheduleView>, Error> {
+    let mut rows = connection?
+        .query(include_str!("../db/get_schedule.sql"), [after])
+        .await?;
+    let mut episodes = Vec::new();
+    while let Some(row) = rows.next().await? {
+        let episode = row_to_schedule_view(row)?;
+        episodes.push(episode);
+    }
+
+    Ok(episodes)
+}
+
+fn row_to_schedule_view(row: Row) -> Result<ScheduleView, Error> {
+    let error = Error::Database("Failed to load episode view".to_string());
+
+    let program_id = row.get_value(0)?;
+    let program_id = program_id.as_integer().ok_or(error.clone())?;
+    let program_title = row.get_value(1)?;
+    let program_title = program_title.as_text().ok_or(error.clone())?;
+    let episode_id = row.get_value(2)?;
+    let episode_id = episode_id.as_integer().ok_or(error.clone())?;
+    let episode_title = row.get_value(3)?;
+    let episode_title = episode_title.as_text().map(|e| e.to_string());
+    let schedule = row.get_value(4)?;
+    let schedule = schedule.as_text().ok_or(error.clone())?;
+    let period = row.get_value(5)?;
+    let period = period.as_integer().ok_or(error.clone())?;
+    let schedule = DateTime::parse_from_str(schedule, "%Y-%m-%d %H:%M:%S %:z")?;
+    let period = TimeDelta::seconds(*period);
+
+    let episode = ScheduleView {
+        program_id: *program_id,
+        program_title: program_title.to_string(),
+        episode_id: *episode_id,
+        episode_title,
+        schedule: schedule.with_timezone(&Local),
+        period,
+    };
+
+    Ok(episode)
 }

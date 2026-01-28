@@ -37,7 +37,7 @@ impl NStreamer {
     fn view_center(&self) -> Element<'_, Message> {
         let center = match self.center {
             Center::LiveStream => self.live_stream.view(),
-            Center::ProgramSchedule => text("Hello World!").into(),
+            Center::ProgramSchedule => self.schedule.view(),
             Center::Downloads => text("Hello World!").into(),
             Center::Library => text("Hello World!").into(),
         };

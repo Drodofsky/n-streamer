@@ -1,4 +1,6 @@
-use crate::n_streamer::db::init_db;
+use chrono::Local;
+
+use crate::n_streamer::db::{get_schedule_view, init_db};
 
 use super::*;
 
@@ -21,7 +23,15 @@ impl NStreamer {
             }
             DBMessage::EpisodesAdded(e) => {
                 self.apply_result(e);
-                Task::none()
+                if let Some(db) = &self.db {
+                    let connection = db.connect();
+                    Task::perform(
+                        get_schedule_view(connection, Local::now().to_string()),
+                        |v| Message::Loaded(LoadedMessage::ScheduleView(v)),
+                    )
+                } else {
+                    Task::none()
+                }
             }
         }
     }

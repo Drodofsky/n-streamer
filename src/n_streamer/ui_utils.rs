@@ -76,3 +76,70 @@ pub fn to_button_status(status: PickListStatus) -> ButtonStatus {
         PickListStatus::Opened { .. } => ButtonStatus::Pressed,
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub enum ScrollListOrigin {
+    Schedule,
+}
+
+pub trait Str {
+    fn get_str(&self) -> String;
+}
+pub trait ScrollListMessage<Item: Str> {
+    fn plus(origin: ScrollListOrigin, item: Item) -> Self;
+    fn list_element_entered(origin: ScrollListOrigin, id: usize) -> Self;
+}
+
+pub fn view_scroll_list<'s>(
+    items: &'s [ScheduleView],
+    hovered_id: usize,
+    origin: ScrollListOrigin,
+    text_btn: &'s str,
+) -> iced::widget::Scrollable<'s, Message, iced::Theme, Renderer> {
+    let episodes = items
+        .iter()
+        .enumerate()
+        .fold(iced::widget::Column::new(), |col, (id, item)| {
+            col.push(
+                iced::widget::mouse_area(
+                    iced::widget::container(
+                        iced::widget::row![
+                            iced::widget::text(item.get_str()).style(move |theme: &iced::Theme| {
+                                if hovered_id == id {
+                                    let mut style = iced::widget::text::default(theme);
+                                    style.color =
+                                        Some(theme.extended_palette().background.strong.text);
+                                    style
+                                } else {
+                                    iced::widget::text::default(theme)
+                                }
+                            }),
+                            iced::widget::space().width(iced::Fill),
+                            text_button(text_btn)
+                                .style(move |theme, status| {
+                                    let mut style = iced::widget::button::text(theme, status);
+                                    if hovered_id == id {
+                                        style.text_color =
+                                            theme.extended_palette().background.strong.text;
+                                    }
+                                    style
+                                })
+                                .on_press(Message::plus(origin, item.clone()))
+                        ]
+                        .padding(PADDING)
+                        .spacing(SPACING),
+                    )
+                    .style(move |theme: &iced::Theme| {
+                        if hovered_id == id {
+                            iced::widget::container::transparent(theme)
+                                .background(theme.extended_palette().background.strong.color)
+                        } else {
+                            iced::widget::container::transparent(theme)
+                        }
+                    }),
+                )
+                .on_enter(Message::list_element_entered(origin, id)),
+            )
+        });
+    iced::widget::scrollable(episodes.padding(PADDING).width(iced::Fill))
+}

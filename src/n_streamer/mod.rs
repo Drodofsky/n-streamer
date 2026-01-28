@@ -28,6 +28,7 @@ pub struct NStreamer {
     live_stream: LiveStream,
     center: Center,
     db: Option<Database>,
+    schedule: ProgramSchedule,
     // only for testing
     project_dir: Option<ProjectDirs>,
 }
@@ -53,6 +54,7 @@ impl Default for NStreamer {
             center: Center::default(),
             project_dir: None,
             db: None,
+            schedule: ProgramSchedule::default(),
         }
     }
 }
