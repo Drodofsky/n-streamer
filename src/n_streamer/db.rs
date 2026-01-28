@@ -26,6 +26,9 @@ pub async fn init_db(connection: Result<Connection, turso::Error>) -> Result<(),
     connection
         .execute(include_str!("../db/create_table_episode.sql"), [0u32; 0])
         .await?;
+    connection
+        .execute(include_str!("../db/create_table_program.sql"), [0u32; 0])
+        .await?;
 
     Ok(())
 }

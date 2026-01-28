@@ -17,12 +17,23 @@ async fn check_table_exists(connection: &Connection, table_name: &str) {
 }
 
 #[tokio::test]
-async fn start() {
-    let dir = "n_streamer_tests/database/init";
+async fn init_episode() {
+    let dir = "n_streamer_tests/database/init_episode";
     let project_dir = ProjectDirs::from_path(dir.into()).unwrap();
     let (mut n_streamer, task) = NStreamer::init(Some(project_dir.clone()));
     execute_tasks(task, &mut n_streamer).await;
     let db = create_db(project_dir).await;
     let connection = db.connect().unwrap();
     check_table_exists(&connection, "episode").await;
+}
+
+#[tokio::test]
+async fn init_program() {
+    let dir = "n_streamer_tests/database/init_program";
+    let project_dir = ProjectDirs::from_path(dir.into()).unwrap();
+    let (mut n_streamer, task) = NStreamer::init(Some(project_dir.clone()));
+    execute_tasks(task, &mut n_streamer).await;
+    let db = create_db(project_dir).await;
+    let connection = db.connect().unwrap();
+    check_table_exists(&connection, "program").await;
 }
