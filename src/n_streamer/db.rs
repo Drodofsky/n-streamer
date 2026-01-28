@@ -1,5 +1,7 @@
-use chrono::{DateTime, Local, TimeDelta};
+use chrono::TimeDelta;
 use turso::{Builder, Connection, Row};
+
+use crate::n_streamer::utils::{parse_time_to_local, time_to_string};
 
 use super::*;
 
@@ -43,7 +45,7 @@ pub(crate) async fn add_episodes(
                     Some(episode.episode_id.to_string()),
                     episode.episode_title,
                     Some((episode.suspend_flg as u8).to_string()),
-                    Some(episode.schedule.to_string()),
+                    Some(time_to_string(episode.schedule)),
                     Some(episode.period.num_seconds().to_string()),
                     episode.rebroadcast_flg.map(|f| (f as u8).to_string()),
                     episode.bilingual_flg.map(|f| (f as u8).to_string()),
@@ -87,7 +89,7 @@ fn row_to_schedule_view(row: Row) -> Result<ScheduleView, Error> {
     let schedule = schedule.as_text().ok_or(error.clone())?;
     let period = row.get_value(5)?;
     let period = period.as_integer().ok_or(error.clone())?;
-    let schedule = DateTime::parse_from_str(schedule, "%Y-%m-%d %H:%M:%S %:z")?;
+    let schedule = parse_time_to_local(schedule)?;
     let period = TimeDelta::seconds(*period);
 
     let episode = ScheduleView {
@@ -95,7 +97,7 @@ fn row_to_schedule_view(row: Row) -> Result<ScheduleView, Error> {
         program_title: program_title.to_string(),
         episode_id: *episode_id,
         episode_title,
-        schedule: schedule.with_timezone(&Local),
+        schedule,
         period,
     };
 

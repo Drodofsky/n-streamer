@@ -1,6 +1,7 @@
+use crate::n_streamer::utils::{japan_time_to_utc, parse_time_delta};
+
 use super::*;
-use chrono::{DateTime, Local, NaiveDateTime, NaiveTime, TimeDelta, Timelike};
-use chrono_tz::Asia::Tokyo;
+use chrono::{DateTime, TimeDelta, Utc};
 use serde::*;
 use std::fmt;
 
@@ -12,7 +13,7 @@ pub struct AnalyzedEpisode {
     pub episode_id: i64,
     pub episode_title: Option<String>,
     pub suspend_flg: bool,
-    pub schedule: DateTime<Local>,
+    pub schedule: DateTime<Utc>,
     pub period: TimeDelta,
     pub rebroadcast_flg: Option<bool>,
     pub bilingual_flg: Option<bool>,
@@ -39,34 +40,20 @@ impl TryFrom<Schedule> for AnalyzedSchedule {
                 english_flg,
                 ..
             } = episode;
-            let schedule_src =
-                NaiveDateTime::parse_from_str(&episode.schedule, "%Y-%m-%d %H:%M:%S")?;
-            let tokyo = schedule_src
-                .and_local_timezone(Tokyo)
-                .single()
-                .ok_or(Error::Chrono("failed to convert time".to_string()))?;
-            let schedule = tokyo.with_timezone(&Local);
-            let period_src = NaiveTime::parse_from_str(&episode.period, "%H:%M:%S")?;
-            let period = TimeDelta::new(period_src.num_seconds_from_midnight() as i64, 0)
-                .ok_or(Error::Chrono("failed to create duration".to_string()))?;
-            if schedule
-                .checked_add_signed(period)
-                .ok_or(Error::Chrono("Failed to calculate schedule".to_string()))?
-                >= Local::now()
-            {
-                res_eps.push(AnalyzedEpisode {
-                    program_id,
-                    program_title,
-                    episode_id,
-                    episode_title,
-                    suspend_flg,
-                    schedule,
-                    period,
-                    rebroadcast_flg,
-                    bilingual_flg,
-                    english_flg,
-                });
-            }
+            let schedule = japan_time_to_utc(&episode.schedule)?;
+            let period = parse_time_delta(&episode.period)?;
+            res_eps.push(AnalyzedEpisode {
+                program_id,
+                program_title,
+                episode_id,
+                episode_title,
+                suspend_flg,
+                schedule,
+                period,
+                rebroadcast_flg,
+                bilingual_flg,
+                english_flg,
+            });
         }
 
         Ok(AnalyzedSchedule { episodes: res_eps })

@@ -1,6 +1,9 @@
 use chrono::Local;
 
-use crate::n_streamer::db::{get_schedule_view, init_db};
+use crate::n_streamer::{
+    db::{get_schedule_view, init_db},
+    utils::time_to_string,
+};
 
 use super::*;
 
@@ -26,7 +29,7 @@ impl NStreamer {
                 if let Some(db) = &self.db {
                     let connection = db.connect();
                     Task::perform(
-                        get_schedule_view(connection, Local::now().to_string()),
+                        get_schedule_view(connection, time_to_string(Local::now())),
                         |v| Message::Loaded(LoadedMessage::ScheduleView(v)),
                     )
                 } else {
