@@ -28,6 +28,7 @@ pub enum WindowMessage {
 pub enum LoadedMessage {
     Settings(Result<Settings, Error>),
     LiveStream(Result<Arc<Video>, Error>),
+    Schedule(Result<AnalyzedSchedule, Error>),
 }
 
 #[derive(Debug, Clone)]

@@ -15,7 +15,9 @@ impl NStreamer {
             }
             DBMessage::Initialized(e) => {
                 self.apply_result(e);
-                Task::none()
+                Task::perform(get_analyzed_schedule(), |a| {
+                    Message::Loaded(LoadedMessage::Schedule(a))
+                })
             }
         }
     }

@@ -12,6 +12,8 @@ pub enum Error {
     Url(String),
     VideoPlayer(String),
     Database(String),
+    Api(String),
+    Chrono(String),
 }
 
 impl fmt::Display for Error {
@@ -35,6 +37,12 @@ impl fmt::Display for Error {
             Self::Database(e) => {
                 write!(f, "Database: {}", e)
             }
+            Self::Api(e) => {
+                write!(f, "api: {}", e)
+            }
+            Self::Chrono(e) => {
+                write!(f, "chrono: {}", e)
+            }
         }
     }
 }
@@ -48,6 +56,8 @@ impl Error {
             Self::Url(_) => Id::new("error_URL"),
             Self::VideoPlayer(_) => Id::new("error_video_player"),
             Self::Database(_) => Id::new("error_database"),
+            Self::Api(_) => Id::new("error_api"),
+            Self::Chrono(_) => Id::new("error_chrono"),
         }
     }
 }
@@ -121,5 +131,15 @@ impl From<iced_video_player::Error> for Error {
 impl From<turso::Error> for Error {
     fn from(value: turso::Error) -> Self {
         Self::Database(value.to_string())
+    }
+}
+impl From<reqwest::Error> for Error {
+    fn from(value: reqwest::Error) -> Self {
+        Self::Api(value.to_string())
+    }
+}
+impl From<chrono::ParseError> for Error {
+    fn from(value: chrono::ParseError) -> Self {
+        Self::Chrono(value.to_string())
     }
 }

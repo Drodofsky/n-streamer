@@ -9,6 +9,7 @@ impl NStreamer {
         match loaded {
             LoadedMessage::Settings(s) => self.loaded_settings(s),
             LoadedMessage::LiveStream(l) => self.loaded_live_stream(l),
+            LoadedMessage::Schedule(s) => self.loaded_schedule(s),
         }
     }
     fn loaded_live_stream(&mut self, live_stream: Result<Arc<Video>, Error>) -> Task<Message> {
@@ -19,5 +20,9 @@ impl NStreamer {
     fn loaded_settings(&mut self, settings: Result<Settings, Error>) -> Task<Message> {
         self.apply_result_and(settings, |this, s| this.settings = s);
         self.init_second_stage()
+    }
+    fn loaded_schedule(&mut self, schedule: Result<AnalyzedSchedule, Error>) -> Task<Message> {
+        self.apply_result(schedule);
+        Task::none()
     }
 }
